@@ -1,4 +1,6 @@
 import textwrap
+import inspect
+import os
 
 
 def wrap(text, width=100, indent_level=0, tabsize=4, **kwargs):
@@ -50,4 +52,34 @@ def wrap(text, width=100, indent_level=0, tabsize=4, **kwargs):
     if any(len(line) > width for line in output):
         raise ValueError('There cannot be any word (after indentation) that exceeds the maximum '
                          'width')
+    return output
+
+
+def extract_members(module):
+    """Extracts all members of a module that are defined in the same file.
+
+    Parameters
+    ----------
+    module : object
+        Any python object.
+
+    Returns
+    -------
+    output : dict of str to object
+        Dictionary of the name of the object to the object.
+
+    """
+    # get file location
+    filename = inspect.getsourcefile(module)
+    # find objects that are defined in the provided module
+    output = {}
+    for name, member in module.__dict__.items():
+        try:
+            # NOTE: inspect.getsourcefile only works on a module, class, method, function,
+            # traceback, frame, or code objects. Not properties.
+            if os.path.samefile(inspect.getsourcefile(member), filename):
+                output[name] = member
+        except TypeError:
+            if isinstance(member, property):
+                output[name] = member
     return output

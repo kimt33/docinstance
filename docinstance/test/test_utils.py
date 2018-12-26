@@ -22,3 +22,18 @@ def test_wrap():
                   docinstance.utils.wrap, 'hello my name is', width=1, indent_level=0, tabsize=1)
     assert_raises(ValueError,
                   docinstance.utils.wrap, 'hello my name is', width=5, indent_level=1, tabsize=1)
+
+
+def test_extract_members():
+    """Test docinstance.utils.extract_members."""
+    class Test:
+        @property
+        def f(self):
+            return 1
+
+        def g(self):
+            return 2
+
+        h = assert_raises
+
+    assert docinstance.utils.extract_members(Test) == {'f': Test.f, 'g': Test.g}
