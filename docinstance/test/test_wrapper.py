@@ -1,4 +1,6 @@
 """Test docinstance.wrapper."""
+import importlib
+import os
 from nose.tools import assert_raises
 from docinstance.wrapper import (kwarg_wrapper, docstring, docstring_recursive,
                                  docstring_current_module, docstring_modify_import)
@@ -287,21 +289,24 @@ test_docstring_current_module._docinstance = Docstring([
 ])
 
 
-def supplementary_test_docstring_current_module():
+def supplementary_docstring_current_module():
     """To be used to test docstring_current_module in test_docstring_current_module."""
     pass
 
 
-supplementary_test_docstring_current_module._docinstance = Docstring([
+supplementary_docstring_current_module._docinstance = Docstring([
     'Some docstring.',
     DocSection('parameters', DocDescription('x', types=int, descs='Example.'))
 ])
-test_docstring_current_module.f = supplementary_test_docstring_current_module
+test_docstring_current_module.f = supplementary_docstring_current_module
 
 
 def test_docstring_modify_import():
     """Test docinstance.wrapper.docstring_modify_import on module `dummy`."""
+    assert (not hasattr(importlib._bootstrap_external.SourceFileLoader.exec_module,
+                        'special_cases'))
     docstring_modify_import()
+
     import docinstance.test.dummy as test
     assert (test.__doc__ ==
             'Dummy module for testing docinstance.wrapper.docstring_modify_import.\n\n')
@@ -312,3 +317,16 @@ def test_docstring_modify_import():
             '    x : str\n'
             '        Example.\n\n'
             '    ')
+    assert (importlib._bootstrap_external.SourceFileLoader.exec_module.special_cases
+            == set([os.path.dirname(__file__)]))
+
+    # check that multiple function calls does not change anything
+    docstring_modify_import()
+    assert (importlib._bootstrap_external.SourceFileLoader.exec_module.special_cases
+            == set([os.path.dirname(__file__)]))
+
+    # import package outside current directory
+    import docinstance.utils
+    # reload module because it has already been loaded via docinstance.wrapper
+    importlib.reload(docinstance.utils)
+    # FIXME: check that the objects within docinstance.utils has not been touched by wrapper.

@@ -159,12 +159,17 @@ def docstring_current_module(width=100, tabsize=4):
     docstring_recursive(module, width=width, indent_level=0, tabsize=tabsize)
 
 
+# TODO: make this function work for built in packages as well?
+# FIXME: doesn't work if the module has already been imported. If so, then the module needs to be
+# reloaded (importlib.reload(module))
 def docstring_modify_import(width=100, tabsize=4):
     """Modify import behaviour to wrap the docstrings of related objects after the import.
 
     This function should be placed in the __init__.py of the package to ensure that the import
-    behaviour is different only for the given package. Then, the package must be imported by itself
-    to ensure that this function is called.
+    behaviour is different only for the given package. It is assumed that the package is organized
+    by directories where the __init__.py of the package is the parent directory in which all of the
+    modules are located. For example, it is assumed that there are no soft-links to directories
+    outside of this package.
 
     Parameters
     ----------
@@ -177,11 +182,10 @@ def docstring_modify_import(width=100, tabsize=4):
 
     Notes
     -----
-    This function will need to be called to modify import behaviour. However, if module in a package
-    is imported directly, then this function (assuming that it is placed in the __init__.py of the
-    package) will not be called.
-
     This function modifies some pretty low level code, so it should be used with caution.
+
+    Since the modified loader is the SourceFileLoader, this function does not affect the import of
+    built-in packages.
 
     """
     # find the location from which this function is called
@@ -222,6 +226,8 @@ def docstring_modify_import(width=100, tabsize=4):
             if any(os.path.commonpath([sourcefile, parent]) == parent
                    for parent in old_import.special_cases):
                 docstring_recursive(module, width=width, indent_level=0, tabsize=tabsize)
+
+        new_import.special_cases = old_import.special_cases
 
         return new_import
 
