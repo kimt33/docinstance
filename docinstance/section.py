@@ -194,3 +194,71 @@ class DocSection:
 
         """
         raise NotImplementedError
+
+
+# FIXME: make a special class for summary
+sections_headers = {'Summary': '', 'ExtendedSummary': '', 'Parameters': None, 'Attributes': None,
+                    'Methods': None, 'Returns': None, 'Yields': None,
+                    'OtherParameters': 'other parameters', 'Raises': None, 'Warns': None,
+                    'Warnings': None, 'SeeAlso': 'see also', 'Notes': None, 'References': None,
+                    'Examples': None}
+
+
+# factory for init
+def make_init(header):
+    """Return init function.
+
+    Parameters
+    ----------
+    header : str
+        Name of the section.
+
+    Returns
+    -------
+    __init__(self, contents)
+        Init function where the header is fixed and is removed as a parameter.
+
+    Notes
+    -----
+    Factory is used to ensure that the function is bound early rather than late. The __init__ can be
+    declared within the for loop where value of the header is received from the local scope within
+    the for loop. However, the function will be late binding, meaning that the value of the header
+    will be looked up when the function is called. We can force early binding with a factory.
+
+    See https://stackoverflow.com/questions/3431676/creating-functions-in-a-loop for more details.
+
+    """
+    def __init__(self, contents):
+        """Initialize.
+
+        Parameters
+        ----------
+        contents : {str, list/tuple of str, list/tuple of DocDescription}
+            Contents of the section.
+            If a string is provided, then this string will be treated as a paragraph in the section.
+            If multiple strings is provided via a list/tuple, then each string will be treated as a
+            paragraph in the section and will be separate from one another by two newlines.
+            If multiple DocDescription's are provided, then each DocDescription will be separate
+            from one another by a newline.
+
+        Raises
+        ------
+        TypeError
+            If `header` is not a string.
+            If `contents` is not a string or a list/tuple of strings.
+
+        """
+        super(self.__class__, self).__init__(header, contents)
+
+    return __init__
+
+
+# declare classes from string
+for class_name, header in sections_headers.items():
+    # if header is None, then it is assumed to be the same as the clas sname
+    if header is None:
+        header = class_name.lower()
+
+    # globals is the dictionary of the current module for the symbols
+    # types is used to instantiate a class (because all classes are instances of type)
+    globals()[class_name] = type(class_name, (DocSection,), {'__init__': make_init(header)})

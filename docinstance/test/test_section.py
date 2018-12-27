@@ -1,6 +1,8 @@
 """Test docinstance.section."""
 from nose.tools import assert_raises
-from docinstance.section import DocSection
+from docinstance.section import (DocSection, Summary, ExtendedSummary, Parameters, Attributes,
+                                 Methods, Returns, Yields, OtherParameters, Raises, Warns, Warnings,
+                                 SeeAlso, Notes, References, Examples)
 from docinstance.description import DocDescription
 
 
@@ -75,3 +77,121 @@ def test_make_rst_docstring():
     test = DocSection('header name',
                       DocDescription('var_name', signature='(a, b)', types=str, descs='Example.'))
     assert_raises(NotImplementedError, test.make_rst_docstring, 20, 0, 4)
+
+
+def test_section_summary():
+    """Test Summary.__init__."""
+    test = Summary('This is a summary.')
+    assert test.header == ''
+    assert test.contents == ['This is a summary.']
+
+
+def test_section_extended_summary():
+    """Test ExtendedSummary.__init__."""
+    test = ExtendedSummary('This is an extended summary.')
+    assert test.header == ''
+    assert test.contents == ['This is an extended summary.']
+
+
+def test_section_parameters():
+    """Test Parameters.__init__."""
+    desc1 = DocDescription('a', types=str, descs='Example 1.')
+    desc2 = DocDescription('b', types=int, descs='Example 2.')
+    test = Parameters([desc1, desc2])
+    assert test.header == 'parameters'
+    assert test.contents == [desc1, desc2]
+
+
+def test_section_attributes():
+    """Test Attributes.__init__."""
+    desc1 = DocDescription('a', types=str, descs='Example 1.')
+    desc2 = DocDescription('b', types=int, descs='Example 2.')
+    test = Attributes([desc1, desc2])
+    assert test.header == 'attributes'
+    assert test.contents == [desc1, desc2]
+
+
+def test_section_methods():
+    """Test Methods.__init__."""
+    desc1 = DocDescription('f', signature='(x, y)', types=int, descs='Example 1.')
+    desc2 = DocDescription('g', signature='(z=1)', types=int, descs='Example 2.')
+    test = Methods([desc1, desc2])
+    assert test.header == 'methods'
+    assert test.contents == [desc1, desc2]
+
+
+def test_section_returns():
+    """Test Returns.__init__."""
+    desc1 = DocDescription('a', types=int, descs='Example 1.')
+    desc2 = DocDescription('b', types=str, descs='Example 2.')
+    test = Returns([desc1, desc2])
+    assert test.header == 'returns'
+    assert test.contents == [desc1, desc2]
+
+
+def test_section_yields():
+    """Test Yields.__init__."""
+    desc = DocDescription('a', types=int, descs='Example 1.')
+    test = Yields(desc)
+    assert test.header == 'yields'
+    assert test.contents == [desc]
+
+
+def test_section_otherparameters():
+    """Test OtherParameters.__init__."""
+    desc1 = DocDescription('a', types=int, descs='Example 1.')
+    desc2 = DocDescription('b', types=str, descs='Example 2.')
+    test = OtherParameters([desc1, desc2])
+    assert test.header == 'other parameters'
+    assert test.contents == [desc1, desc2]
+
+
+def test_section_raises():
+    """Test Raises.__init__."""
+    desc = DocDescription('TypeError', descs='If something.')
+    test = Raises(desc)
+    assert test.header == 'raises'
+    assert test.contents == [desc]
+
+
+def test_section_warns():
+    """Test Warns.__init__."""
+    desc = DocDescription('Warning', descs='If something.')
+    test = Warns(desc)
+    assert test.header == 'warns'
+    assert test.contents == [desc]
+
+
+def test_section_warnings():
+    """Test Warnings.__init__."""
+    test = Warnings('Not to be used.')
+    assert test.header == 'warnings'
+    assert test.contents == ['Not to be used.']
+
+
+def test_section_seealso():
+    """Test SeeAlso.__init__."""
+    test = SeeAlso('Some other code.')
+    assert test.header == 'see also'
+    assert test.contents == ['Some other code.']
+
+
+def test_section_notes():
+    """Test Notes.__init__."""
+    test = Notes('Some comment.')
+    assert test.header == 'notes'
+    assert test.contents == ['Some comment.']
+
+
+def test_section_references():
+    """Test References.__init__."""
+    test = References('Some reference.')
+    assert test.header == 'references'
+    assert test.contents == ['Some reference.']
+
+
+def test_section_examples():
+    """Test Examples.__init__."""
+    test = Examples('Some example.')
+    assert test.header == 'examples'
+    assert test.contents == ['Some example.']
