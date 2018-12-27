@@ -1,6 +1,6 @@
 """Class for representing the docstring."""
 from docinstance.utils import wrap
-from docinstance.section import DocSection
+from docinstance.section import DocSection, Summary
 
 
 class Docstring:
@@ -135,36 +135,22 @@ class Docstring:
                              'docstring style.')
 
         output = ''
-        # NOTE: the docstring function for the first section (summary) is not used because it needs
-        # to be adjusted for the triple quotations
         # check that first section does not have a header
         if self.sections[0].header != '':
             raise ValueError('First section of the docstring (summary) must have an empty header.')
-        # check that summary is string
-        summary = self.sections[0].contents[0]
-        if not isinstance(summary, str):
-            raise ValueError('First section of the docstring (summary) must consist of a string.')
-        # adjust if summary cannot fit into same line as the triple quotation
-        if len(wrap(summary, width - 3, indent_level, tabsize)) > 1:
-            output += '\n'
-            if len(wrap(summary, width, indent_level, tabsize)) > 1:
-                raise ValueError('First section of the docstring (summary) must fit completely into'
-                                 ' the first line of the docstring (including the triple quotation)'
-                                 ' or the second line.')
         # add summary
-        # FIXME: what about one line summary that can fit into one line? (triple quotes on both
-        # sides)?
-        output += summary
-        output += '\n\n'
+        summary = Summary(self.sections[0].contents[0])
+        output += summary.make_docstring(width, indent_level, tabsize,
+                                         summary_only=(len(self.sections) ==
+                                                       len(self.sections[0].contents) == 1))
         # add remaining summary
         if len(self.sections[0].contents) > 1:
             summary = DocSection('', self.sections[0].contents[1:])
             output += getattr(summary, docstring_func)(width, indent_level, tabsize)
-        if len(self.sections) == 1:
-            return output
         # add other sections
-        for section in self.sections[1:]:
-            output += getattr(section, docstring_func)(width, indent_level, tabsize)
+        if len(self.sections) > 1:
+            for section in self.sections[1:]:
+                output += getattr(section, docstring_func)(width, indent_level, tabsize)
         # add whitespace to indent the triple quotation
         output += ' ' * indent_level * tabsize
         return output

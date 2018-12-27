@@ -79,11 +79,42 @@ def test_make_rst_docstring():
     assert_raises(NotImplementedError, test.make_rst_docstring, 20, 0, 4)
 
 
-def test_section_summary():
+def test_section_summary_init():
     """Test Summary.__init__."""
-    test = Summary('This is a summary.')
+    assert_raises(TypeError, Summary, ['summary'])
+    assert_raises(TypeError, Summary, DocDescription('something'))
+    test = Summary('very very long summary')
     assert test.header == ''
-    assert test.contents == ['This is a summary.']
+    assert test.contents == ['very very long summary']
+
+
+def test_section_summary_make_docstring():
+    """Test Summary.make_docstring."""
+    test = Summary('very very long summary')
+    assert (test.make_docstring(25, 0, 4, summary_only=True, special=False) ==
+            'very very long summary\n\n')
+    assert (test.make_docstring(24, 0, 4, summary_only=True, special=False) ==
+            '\nvery very long summary\n\n')
+    assert (test.make_docstring(28, 0, 4, summary_only=True, special=False) ==
+            'very very long summary')
+    assert (test.make_docstring(25, 0, 4, summary_only=False, special=False) ==
+            'very very long summary\n\n')
+    assert (test.make_docstring(24, 0, 4, summary_only=False, special=False) ==
+            '\nvery very long summary\n\n')
+    assert (test.make_docstring(28, 0, 4, summary_only=False, special=False) ==
+            'very very long summary\n\n')
+
+    assert not (test.make_docstring(25, 0, 4, summary_only=True, special=True) ==
+                'very very long summary\n\n')
+    assert (test.make_docstring(26, 0, 4, summary_only=True, special=True) ==
+            'very very long summary\n\n')
+    assert not (test.make_docstring(28, 0, 4, summary_only=True, special=True) ==
+                'very very long summary')
+    assert (test.make_docstring(29, 0, 4, summary_only=True, special=True) ==
+            'very very long summary')
+
+    test = Summary('very very very very very very long summary')
+    assert_raises(ValueError, test.make_docstring, 30, 0, 4)
 
 
 def test_section_extended_summary():

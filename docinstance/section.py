@@ -17,8 +17,6 @@ class DocSection:
     -------
     __init__(self, header, contents)
         Initialize.
-    make_docstring(self, style, width, indent_level, tabsize)
-        Return docstring in correponding style.
     make_numpy_docstring(self, width, indent_level, tabsize, include_signature=False)
         Return the docstring in numpy style.
     make_numpy_docstring_signature(self, width, indent_level, tabsize)
@@ -197,7 +195,99 @@ class DocSection:
 
 
 # FIXME: make a special class for summary
-sections_headers = {'Summary': '', 'ExtendedSummary': '', 'Parameters': None, 'Attributes': None,
+class Summary(DocSection):
+    """First line of the docstring.
+
+    Attributes
+    ----------
+    header : ''
+        Name of the section to be used within the docstring.
+    contents : list of str
+        Contents within the section.
+
+    Methods
+    -------
+    __init__(self, header, contents)
+        Initialize.
+    make_numpy_docstring(self, width, indent_level, tabsize, include_signature=False)
+        Return the docstring in numpy style.
+    make_numpy_docstring_signature(self, width, indent_level, tabsize)
+        Return the docstring in numpy style modified to include signature.
+
+    """
+    def __init__(self, contents):
+        """Initialize.
+
+        Parameters
+        ----------
+        contents : str
+            First line of docstring.
+
+        Raises
+        ------
+        TypeError
+            If the given content is not a string.
+
+        """
+        self.header = ''
+        if not isinstance(contents, str):
+            raise TypeError("The parameter `contents` must be a string.")
+        self.contents = [contents]
+
+    def make_docstring(self, width, indent_level, tabsize, summary_only=False, special=False):
+        """Return the docstring for the summary.
+
+        Parameters
+        ----------
+        width : int
+            Maximum number of characters allowed in a line.
+        indent_level : int
+            Number of indents (tabs) that are needed for the docstring.
+        tabsize : int
+            Number of spaces that corresponds to a tab.
+        summary_only : {bool, False}
+            Flag for indicating that there is only summary in the docstring.
+            If True, then newlines are not added to the output if the summary can fit both triple
+            quotations on either side. Otherwise, newlines are added.
+            By default, False.
+        special : {bool, False}
+            Flag for indicating that the docstring is raw or is unicode.
+            By default, False.
+
+        Returns
+        -------
+        summary : str
+            First line of the docstring.
+
+        Raises
+        ------
+        ValueError
+            If the title is too long for the given width and indentation.
+
+        """
+        output = ''
+        summary = self.contents[0]
+        # if summary cannot fit into first line with one triple quotation
+        # if len(summary) + ' ' * indent_level * tabsize > width - 3:
+        if len(wrap(summary, width - 3 - int(special), indent_level, tabsize)) > 1:
+            output += '\n'
+            # if summary cannot fit into the second line (without tripple quotation)
+            # if len(summary) + ' ' * indent_level * tabsize > width:
+            if len(wrap(summary, width, indent_level, tabsize)) > 1:
+                raise ValueError('First section of the docstring (summary) must fit completely into'
+                                 ' the first line of the docstring (including the triple quotation)'
+                                 ' or the second line.')
+        output += summary
+        # if summary only and summary can fit into the first line with two triple quotations
+        # FIXME: use `not` to get ride of a return statement
+        if (summary_only and
+                len(wrap(summary, width - 6 - int(special), indent_level, tabsize)) == 1):
+            return output
+        output += '\n\n'
+        return output
+
+
+sections_headers = {'ExtendedSummary': '', 'Parameters': None, 'Attributes': None,
                     'Methods': None, 'Returns': None, 'Yields': None,
                     'OtherParameters': 'other parameters', 'Raises': None, 'Warns': None,
                     'Warnings': None, 'SeeAlso': 'see also', 'Notes': None, 'References': None,

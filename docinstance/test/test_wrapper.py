@@ -309,7 +309,7 @@ def test_docstring_modify_import():
 
     import docinstance.test.dummy as test
     assert (test.__doc__ ==
-            'Dummy module for testing docinstance.wrapper.docstring_modify_import.\n\n')
+            'Dummy module for testing docinstance.wrapper.docstring_modify_import.')
     assert (test.DummyClass.__doc__ ==
             'Class for testing.\n\n'
             '    Attributes\n'

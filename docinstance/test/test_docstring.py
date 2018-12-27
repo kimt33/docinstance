@@ -64,10 +64,6 @@ def test_make_docstring():
     # check summary errors
     test = Docstring([DocSection('parameters', DocDescription('something'))])
     assert_raises(ValueError, test.make_docstring)
-    test = Docstring([DocSection('', DocDescription('something')), 'extended summary'])
-    assert_raises(ValueError, test.make_docstring)
-    test = Docstring(['very very very very very very long summary', 'extended summary'])
-    assert_raises(ValueError, test.make_docstring, width=30)
     # one line summary
     test = Docstring('very very long summary')
     assert test.make_docstring(width=25) == 'very very long summary\n\n'
