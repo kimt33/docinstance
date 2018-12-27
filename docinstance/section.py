@@ -279,11 +279,9 @@ class Summary(DocSection):
                                  ' or the second line.')
         output += summary
         # if summary only and summary can fit into the first line with two triple quotations
-        # FIXME: use `not` to get ride of a return statement
-        if (summary_only and
+        if not (summary_only and
                 len(wrap(summary, width - 6 - int(special), indent_level, tabsize)) == 1):
-            return output
-        output += '\n\n'
+            output += '\n\n'
         return output
 
 
