@@ -19,7 +19,7 @@ class DocDescription:
     signature : str
         Signature of the described object.
         Used to describe inputs to functions.
-    types : list of classes
+    types : list of classes/str
         Allowed types of the given object.
         If multiple classes are given, then the last one is assumed to be the default value.
         Used to describe types of a parameter and of the value returned by a method.
@@ -50,7 +50,7 @@ class DocDescription:
         signture : {str, ''}
             Signature of the described object.
             Default is no signature (i.e. empty string).
-        types : {class, list/tuple of classes, None}
+        types : {class, list/tuple of classes, str, list/tuple of str, None}
             Allowed types of the given object.
             If multiple classes are given, then the last one is assumed to be the default value.
             Default is no types.
@@ -66,7 +66,7 @@ class DocDescription:
             If the name of the described object/error is not a string.
             If the signature of the described object/error is not a string.
             If the allowed types of the described object/error is not a class or a list/tuple of
-            classes.
+            classes/strings.
             If the descriptions of the described object/error is not a string or a list/tuple of
             strings.
 
@@ -81,12 +81,12 @@ class DocDescription:
 
         if types is None:
             types = []
-        elif isinstance(types, type):
+        elif isinstance(types, (type, str)):
             types = [types]
         elif not (isinstance(types, (list, tuple)) and
-                  all(isinstance(i, type) for i in types)):
+                  all(isinstance(i, (type, str)) for i in types)):
             raise TypeError("Types of allowed objects must be given as a class or list/tuple of "
-                            "classes.")
+                            "classes/strings.")
         self.types = list(types)
 
         if descs is None:
