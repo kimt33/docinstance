@@ -1,5 +1,7 @@
+"""Test docinstance.wrapper."""
 from nose.tools import assert_raises
-from docinstance.wrapper import kwarg_wrapper, docstring, docstring_recursive
+from docinstance.wrapper import (kwarg_wrapper, docstring, docstring_recursive,
+                                 docstring_current_module, docstring_modify_import)
 from docinstance.docstring import Docstring
 from docinstance.section import DocSection
 from docinstance.description import DocDescription
@@ -261,3 +263,52 @@ def test_wrapper_docstring_recursive_on_class():
                               '            nothing\n\n'
                               '            ')
     assert Test.f._docinstance == docinstance2
+
+
+def test_docstring_current_module():
+    """Test docinstance.wrapper.docstring_current_module on the current module."""
+    docstring_current_module()
+    assert (test_docstring_current_module.__doc__ ==
+            'Test docinstance.wrapper.docstring_current_module on the current module.\n\n'
+            '    Did it work?\n\n'
+            '    ')
+    assert (test_docstring_current_module.f.__doc__ ==
+            'Some docstring.\n\n'
+            '    Parameters\n'
+            '    ----------\n'
+            '    x : int\n'
+            '        Example.\n\n'
+            '    ')
+
+
+test_docstring_current_module._docinstance = Docstring([
+    'Test docinstance.wrapper.docstring_current_module on the current module.',
+    'Did it work?'
+])
+
+
+def supplementary_test_docstring_current_module():
+    """To be used to test docstring_current_module in test_docstring_current_module."""
+    pass
+
+
+supplementary_test_docstring_current_module._docinstance = Docstring([
+    'Some docstring.',
+    DocSection('parameters', DocDescription('x', types=int, descs='Example.'))
+])
+test_docstring_current_module.f = supplementary_test_docstring_current_module
+
+
+def test_docstring_modify_import():
+    """Test docinstance.wrapper.docstring_modify_import on module `dummy`."""
+    docstring_modify_import()
+    import docinstance.test.dummy as test
+    assert (test.__doc__ ==
+            'Dummy module for testing docinstance.wrapper.docstring_modify_import.\n\n')
+    assert (test.DummyClass.__doc__ ==
+            'Class for testing.\n\n'
+            '    Attributes\n'
+            '    ----------\n'
+            '    x : str\n'
+            '        Example.\n\n'
+            '    ')

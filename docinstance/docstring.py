@@ -152,6 +152,8 @@ class Docstring:
                                  ' the first line of the docstring (including the triple quotation)'
                                  ' or the second line.')
         # add summary
+        # FIXME: what about one line summary that can fit into one line? (triple quotes on both
+        # sides)?
         output += summary
         output += '\n\n'
         # add remaining summary
