@@ -98,6 +98,18 @@ class DocDescription:
                             "list/tuple of strings")
         self.descs = list(descs)
 
+    @property
+    def types_str(self):
+        """Return types as strings.
+
+        Returns
+        -------
+        types_str : list of str
+            Types where the classes are converted to its __name__ attribute.
+
+        """
+        return [i.__name__ if isinstance(i, type) else i for i in self.types]
+
     def make_numpy_docstring(self, width, indent_level, tabsize):
         """Return the docstring in numpy style.
 
@@ -141,7 +153,7 @@ class DocDescription:
             output += wrap(self.name, width=width, indent_level=indent_level, tabsize=tabsize)[0]
         # var_name : var_type
         elif len(self.types) == 1:
-            name_type = wrap('{0} : {1}'.format(self.name, self.types[0].__name__),
+            name_type = wrap('{0} : {1}'.format(self.name, self.types_str[0]),
                              width=width, indent_level=indent_level, tabsize=tabsize)
             # check that the both the name and the type can fit in the given width and indentation
             if len(name_type) > 1:
@@ -151,16 +163,14 @@ class DocDescription:
             output += name_type[0]
         # var_name : {var_type1, var_type2, default_type}
         else:
-            name_types = wrap('{0} : {{{1}}}'.format(self.name,
-                                                     ', '.join(i.__name__ for i in self.types)),
+            name_types = wrap('{0} : {{{1}}}'.format(self.name, ', '.join(self.types_str)),
                               width=width, indent_level=indent_level, tabsize=tabsize)
             # if there are too many types to fit into one line, the remaining lines should be
             # indented to line up after "var_name : {"
             wrap_point = len('{0} : {{'.format(self.name))
             # check that the name and first type can fit into the first line
             if not name_types[0].startswith('{0}{1} : {{{2}'.format(' ' * indent_level * tabsize,
-                                                                    self.name,
-                                                                    self.types[0].__name__)):
+                                                                    self.name, self.types_str[0])):
                 # FIXME: need a better message
                 raise ValueError('The name and the first type of the variable are too long to fit '
                                  'into the given width and indentation.')

@@ -34,6 +34,12 @@ def test_init():
     assert test.descs == ['2']
 
 
+def test_types_str():
+    """Test DocDescription.types_str."""
+    test = DocDescription('test', types=[str, int, 'list of str'])
+    assert test.types_str == ['str', 'int', 'list of str']
+
+
 def test_make_numpy_docstring():
     """Test DocDescription.make_numpy_docstring."""
     # no type
