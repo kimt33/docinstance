@@ -43,24 +43,26 @@ class DocSection(DocContent):
         ------
         TypeError
             If `header` is not a string.
-            If `contents` is not a string or a list/tuple of strings.
+            If `contents` is not a string, a list/tuple of DocDescription, or a list/tuple of
+            string/DocContent where none of the DocContent instances are also instances of
+            DocDescription.
 
         """
         if not isinstance(header, str):
             raise TypeError("The parameter `header` must be a string.")
         self.header = header
 
-        if isinstance(contents, (str, DocDescription)):
+        if isinstance(contents, (str, DocContent)):
             contents = [contents]
-        # elif not (isinstance(contents, (tuple, list)) and
-        #           (all(isinstance(content, str) and not isinstance(content, DocDescription)
-        #                for content in contents) or
-        #            all(isinstance(content, DocDescription) for content in contents))):
+        # NOTE: is it really necessary to prevent contents of a section from mixing
+        # strings/DocContent and DocDescription?
         elif not (isinstance(contents, (tuple, list)) and
-                  (all(isinstance(content, str) for content in contents) or
+                  (all(isinstance(content, (str, DocContent)) and
+                       not isinstance(content, DocDescription) for content in contents) or
                    all(isinstance(content, DocDescription) for content in contents))):
-            raise TypeError("The parameter `contents` must be a string, a list/tuple of strings, or"
-                            " a list/tuple of DocDescription.")
+            raise TypeError("The parameter `contents` must be a string, a list/tuple of "
+                            "DocDescription, or a list/tuple of strings/DocContent (not "
+                            "DocDescription).")
         self.contents = list(contents)
 
     def make_numpy_docstring(self, width, indent_level, tabsize, include_signature=False):
@@ -109,14 +111,11 @@ class DocSection(DocContent):
                 output += '\n'.join(wrap(paragraph, width=width, indent_level=indent_level,
                                          tabsize=tabsize))
                 output += '\n\n'
-            # if isinstance(paragraph, DocDescription)
+            # if isinstance(paragraph, DocContent)
+            elif include_signature and hasattr(paragraph, 'make_numpy_docstring_signature'):
+                output += paragraph.make_numpy_docstring_signature(width, indent_level, tabsize)
             else:
-                # FIXME: it would be nice if this part can be separated out into the
-                # make_numpy_docstring_signature
-                if include_signature:
-                    output += paragraph.make_numpy_docstring_signature(width, indent_level, tabsize)
-                else:
-                    output += paragraph.make_numpy_docstring(width, indent_level, tabsize)
+                output += paragraph.make_numpy_docstring(width, indent_level, tabsize)
         else:
             # end a section with two newlines (note that the section already ends with a newline if
             # it ends with a paragraph)
@@ -149,54 +148,6 @@ class DocSection(DocContent):
 
         """
         return self.make_numpy_docstring(width, indent_level, tabsize, include_signature=True)
-
-    def make_google_docstring(self, width, indent_level, tabsize):
-        """Return the docstring in google style.
-
-        Parameters
-        ----------
-        width : int
-            Maximum number of characters allowed in a line.
-        indent_level : int
-            Number of indents (tabs) that are needed for the docstring.
-        tabsize : int
-            Number of spaces that corresponds to a tab.
-
-        Returns
-        -------
-        section_docstring : str
-            Docstring of the given section in google style.
-
-        Raises
-        ------
-        NotImplementedError
-
-        """
-        raise NotImplementedError
-
-    def make_rst_docstring(self, width, indent_level, tabsize):
-        """Return the docstring in rst style.
-
-        Parameters
-        ----------
-        width : int
-            Maximum number of characters allowed in a line.
-        indent_level : int
-            Number of indents (tabs) that are needed for the docstring.
-        tabsize : int
-            Number of spaces that corresponds to a tab.
-
-        Returns
-        -------
-        section_docstring : str
-            Docstring of the given section in rst style.
-
-        Raises
-        ------
-        NotImplementedError
-
-        """
-        raise NotImplementedError
 
 
 # FIXME: make a special class for summary

@@ -1,4 +1,5 @@
 """Class for representing the docstring."""
+from docinstance.content.base import DocContent
 from docinstance.content.section import DocSection, Summary
 
 
@@ -40,16 +41,16 @@ class Docstring:
             If style is not one of 'numpy', 'numpy with signature', 'google', 'rst'.
 
         """
-        if isinstance(sections, (str, DocSection)):
+        if isinstance(sections, (str, DocContent)):
             sections = [sections]
         elif not (isinstance(sections, (list, tuple)) and
-                  all(isinstance(i, (str, DocSection)) for i in sections)):
+                  all(isinstance(i, (str, DocContent)) for i in sections)):
             raise TypeError('Sections of the docstring must be provided as a string, list/tuple of '
-                            'strings, or list/tuple of DocSection instances.')
+                            'strings, or list/tuple of DocContent instances.')
         # NOTE: should the empty sections be allowed?
         elif len(sections) == 0:
             raise ValueError('At least one section must be provided.')
-        self.sections = [DocSection('', section) if isinstance(section, str) else section
+        self.sections = [section if isinstance(section, DocSection) else DocSection('', section)
                          for section in sections]
 
         if default_style not in ['numpy', 'numpy with signature', 'google', 'rst']:
