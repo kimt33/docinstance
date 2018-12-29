@@ -5,8 +5,8 @@ from nose.tools import assert_raises
 from docinstance.wrapper import (kwarg_wrapper, docstring, docstring_recursive,
                                  docstring_current_module, docstring_modify_import)
 from docinstance.docstring import Docstring
-from docinstance.section import DocSection
-from docinstance.description import DocDescription
+from docinstance.content.section import DocSection
+from docinstance.content.description import DocDescription
 
 
 def test_kwarg_wrapper():

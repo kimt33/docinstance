@@ -1,8 +1,9 @@
 """Class for representing a description of objects/errors in the docstring."""
 from docinstance.utils import wrap
+from docinstance.content.base import DocContent
 
 
-class DocDescription:
+class DocDescription(DocContent):
     """Description of objects or errors raised in a docstring.
 
     If a function is being described, then all of `name`, `signature`, and `descs` can be given. The

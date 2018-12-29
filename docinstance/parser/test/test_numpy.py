@@ -1,8 +1,8 @@
 """Tests for docinstance.parser.numpy."""
 from nose.tools import assert_raises
 from docinstance.docstring import Docstring
-from docinstance.section import (DocSection, Summary, ExtendedSummary, Parameters)
-from docinstance.description import DocDescription
+from docinstance.content.section import (DocSection, Summary, ExtendedSummary, Parameters)
+from docinstance.content.description import DocDescription
 from docinstance.parser.numpy import parse_numpy, is_math, extract_math
 
 

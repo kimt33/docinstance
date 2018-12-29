@@ -1,9 +1,10 @@
 """Class for representing a section in the docstring."""
 from docinstance.utils import wrap
-from docinstance.description import DocDescription
+from docinstance.content.base import DocContent
+from docinstance.content.description import DocDescription
 
 
-class DocSection:
+class DocSection(DocContent):
     """Section within a docstring.
 
     Attributes
@@ -51,6 +52,10 @@ class DocSection:
 
         if isinstance(contents, (str, DocDescription)):
             contents = [contents]
+        # elif not (isinstance(contents, (tuple, list)) and
+        #           (all(isinstance(content, str) and not isinstance(content, DocDescription)
+        #                for content in contents) or
+        #            all(isinstance(content, DocDescription) for content in contents))):
         elif not (isinstance(contents, (tuple, list)) and
                   (all(isinstance(content, str) for content in contents) or
                    all(isinstance(content, DocDescription) for content in contents))):

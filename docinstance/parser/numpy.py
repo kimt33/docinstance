@@ -2,10 +2,11 @@
 import re
 import inspect
 from docinstance.docstring import Docstring
-from docinstance.description import DocDescription
-from docinstance.section import (DocSection, Summary, ExtendedSummary, Parameters, Attributes,
-                                 Methods, Returns, Yields, OtherParameters, Raises, Warns, Warnings,
-                                 SeeAlso, Notes, References, Examples)
+from docinstance.content.description import DocDescription
+from docinstance.content.section import (DocSection, Summary, ExtendedSummary, Parameters,
+                                         Attributes, Methods, Returns, Yields, OtherParameters,
+                                         Raises, Warns, Warnings, SeeAlso, Notes, References,
+                                         Examples)
 
 
 def is_math(text):

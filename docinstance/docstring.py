@@ -1,5 +1,5 @@
 """Class for representing the docstring."""
-from docinstance.section import DocSection, Summary
+from docinstance.content.section import DocSection, Summary
 
 
 class Docstring:

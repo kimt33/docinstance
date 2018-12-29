@@ -1,6 +1,6 @@
-"""Test docinstance.description."""
+"""Test docinstance.content.description."""
 from nose.tools import assert_raises
-from docinstance.description import DocDescription
+from docinstance.content.description import DocDescription
 
 
 def test_init():

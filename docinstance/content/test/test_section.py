@@ -1,9 +1,10 @@
-"""Test docinstance.section."""
+"""Test docinstance.content.section."""
 from nose.tools import assert_raises
-from docinstance.section import (DocSection, Summary, ExtendedSummary, Parameters, Attributes,
-                                 Methods, Returns, Yields, OtherParameters, Raises, Warns, Warnings,
-                                 SeeAlso, Notes, References, Examples)
-from docinstance.description import DocDescription
+from docinstance.content.section import (DocSection, Summary, ExtendedSummary, Parameters, 
+                                         Attributes, Methods, Returns, Yields, OtherParameters,
+                                         Raises, Warns, Warnings, SeeAlso, Notes, References, 
+                                         Examples) 
+from docinstance.content.description import DocDescription
 
 
 def test_init():
