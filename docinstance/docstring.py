@@ -1,5 +1,4 @@
 """Class for representing the docstring."""
-from docinstance.utils import wrap
 from docinstance.section import DocSection, Summary
 
 
