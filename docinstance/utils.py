@@ -9,7 +9,8 @@ def wrap(text, width=100, indent_level=0, tabsize=4, **kwargs):
     Parameters
     ----------
     text : str
-        Text that will be wrapped.
+        Text that will be wrapped into different lines such that each line is indented and is less
+        than the given length.
     width : int
         Maximum number of characters allowed in each line.
     indent_level : int
@@ -30,6 +31,11 @@ def wrap(text, width=100, indent_level=0, tabsize=4, **kwargs):
     output : list of str
         Text that has been wrapped to the given length and indentation where each line is an element
         of the list.
+        If there are any newline characters present in the text, the text will first be divided
+        according to the newlines and will be wrapped aftewards.
+        Whitespace (excluding newline) at the end of each (newline-separated) line is discarded.
+        Whitespace (excluding newline) at the beginning of each (newline-separated) line is
+        discarded only if the first word cannot fit into the given line width with the whitespace.
 
     Raises
     ------
@@ -47,8 +53,18 @@ def wrap(text, width=100, indent_level=0, tabsize=4, **kwargs):
         raise ValueError('Amount of indentation must be less than the maximum width.')
     kwargs['width'] = width - tabsize * indent_level
 
-    lines = textwrap.wrap(text, **kwargs)
-    output = [' ' * tabsize * indent_level + line for line in lines]
+    # NOTE: uncomment to remove whitespace at the beginning and the end
+    # text = text.strip()
+    # Acknowledge all of the newlines (start, middle, and end)
+    lines = text.split('\n')
+    # wrap each line (separated by newline) separately
+    wrapped_lines = [wrapped_line
+                     for unwrapped_line in lines
+                     for wrapped_line in
+                     (textwrap.wrap(unwrapped_line, **kwargs) if unwrapped_line != '' else [''])]
+    # indent
+    output = [' ' * tabsize * indent_level + line for line in wrapped_lines]
+
     if any(len(line) > width for line in output):
         raise ValueError('There cannot be any word (after indentation) that exceeds the maximum '
                          'width')
