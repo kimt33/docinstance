@@ -15,6 +15,44 @@ def test_base_init():
         DocContent()
 
 
+def test_base_eq():
+    """Test DocContent.__eq__."""
+    test1 = ModDocContent()
+    test1.x = 1
+    test2 = ModDocContent()
+    test2.x = 1
+    assert test1 == test2
+    test2.y = 2
+    assert not test1 == test2
+
+    class Empty:
+        pass
+    test2 = Empty()
+    test2.x = 1
+    assert not test1 == test2
+    test2 = {'x': 1}
+    assert not test1 == test2
+
+
+def test_base_ne():
+    """Test DocContent.__ne__."""
+    test1 = ModDocContent()
+    test1.x = 1
+    test2 = ModDocContent()
+    test2.x = 1
+    assert not test1 != test2
+    test2.y = 2
+    assert test1 != test2
+
+    class Empty:
+        pass
+    test2 = Empty()
+    test2.x = 1
+    assert test1 != test2
+    test2 = {'x': 1}
+    assert test1 != test2
+
+
 def test_base_make_numpy_docstring():
     """Test DocContent.make_numpy_docstring."""
     test = TestDocContent()

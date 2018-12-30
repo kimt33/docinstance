@@ -7,55 +7,6 @@ from docinstance.content.equation import DocEquation
 from docinstance.parser.numpy import parse_numpy
 
 
-# TODO: move into __eq__ of appropriate classes?
-def equal_docstrings(doc1, doc2):
-    """Return True if doc1 and doc2 have the same content, otherwise False.
-
-    Parameters
-    ----------
-    doc1 : Docstring
-    doc2 : Docstring
-
-    Returns
-    -------
-    bool
-
-    """
-    if not (isinstance(doc1, Docstring) and isinstance(doc2, Docstring)):
-        return False
-    elif len(doc1.sections) != len(doc2.sections):
-        return False
-    for section1, section2 in zip(doc1.sections, doc2.sections):
-        # this part repeats
-        if section1.header != section2.header:
-            return False
-        elif len(section1.contents) != len(section2.contents):
-            return False
-        for content1, content2 in zip(section1.contents, section2.contents):
-            if isinstance(content1, str) and isinstance(content2, str):
-                if content1 != content2:
-                    return False
-            elif isinstance(content1, DocDescription) and isinstance(content2, DocDescription):
-                if (content1.name != content2.name or content1.signature != content2.signature or
-                        content1.types != content2.types):
-                    return False
-                elif len(content1.descs) != len(content2.descs):
-                    return False
-                for desc1, desc2 in zip(content1.descs, content2.descs):
-                    if isinstance(desc1, str) or isinstance(desc2, str):
-                        if desc1 != desc2:
-                            return False
-                    # is DocEquation
-                    elif desc1.equations != desc2.equations:
-                        return False
-            elif isinstance(content1, DocEquation) and isinstance(content2, DocEquation):
-                if content1.equations != content2.equations:
-                    return False
-            else:
-                return False
-    return True
-
-
 def test_compare_docinstances():
     """Test docinstance.parser.test.test_numpy."""
     doc1 = Docstring(['summary',
@@ -70,46 +21,41 @@ def test_compare_docinstances():
                                                              ['desc1', 'desc2']),
                                               DocDescription('name2', '(c, d)', int,
                                                              ['desc3', DocEquation('desc4')])])])
-    assert not equal_docstrings(doc1, 1)
-    assert not equal_docstrings(1, doc2)
-    assert not equal_docstrings(Docstring(['a', 'b']),
-                                Docstring(['a', 'b', 'c']))
-    assert not equal_docstrings(Docstring(['a', 'b']),
-                                Docstring(['a', DocSection('x', 'b')]))
-    assert not equal_docstrings(Docstring(DocSection('a', 'b')),
-                                Docstring(DocSection('a', ['b', 'c'])))
-    assert not equal_docstrings(Docstring(DocSection('a', 'b')),
-                                Docstring(DocSection('a', 'c')))
-    assert not equal_docstrings(Docstring(DocSection('a', DocDescription('x', 'y', 'z', 'k'))),
-                                Docstring(DocSection('a', DocDescription('1', 'y', 'z', 'k'))))
-    assert not equal_docstrings(Docstring(DocSection('a', DocDescription('x', 'y', 'z', 'k'))),
-                                Docstring(DocSection('a', DocDescription('x', '1', 'z', 'k'))))
-    assert not equal_docstrings(Docstring(DocSection('a', DocDescription('x', 'y', 'z', 'k'))),
-                                Docstring(DocSection('a', DocDescription('x', 'y', '1', 'k'))))
-    assert not equal_docstrings(Docstring(DocSection('a', DocDescription('x', 'y', 'z', 'k'))),
-                                Docstring(DocSection('a', DocDescription('x', 'y', 'z', '1'))))
-    assert not equal_docstrings(Docstring(DocSection('a', DocDescription('x', 'y', 'z',
-                                                                         DocEquation('k')))),
-                                Docstring(DocSection('a', DocDescription('x', 'y', 'z',
-                                                                         DocEquation('1')))))
-    assert equal_docstrings(doc1, doc2)
+    assert doc1 != 1
+    assert 1 != doc1
+    assert Docstring(['a', 'b']) != Docstring(['a', 'b', 'c'])
+    assert Docstring(['a', 'b']) != Docstring(['a', DocSection('x', 'b')])
+    assert Docstring(DocSection('a', 'b')) != Docstring(DocSection('a', ['b', 'c']))
+    assert Docstring(DocSection('a', 'b')) != Docstring(DocSection('a', 'c'))
+    assert (Docstring(DocSection('a', DocDescription('x', 'y', 'z', 'k'))) !=
+            Docstring(DocSection('a', DocDescription('1', 'y', 'z', 'k'))))
+    assert (Docstring(DocSection('a', DocDescription('x', 'y', 'z', 'k'))) !=
+            Docstring(DocSection('a', DocDescription('x', '1', 'z', 'k'))))
+    assert (Docstring(DocSection('a', DocDescription('x', 'y', 'z', 'k'))) !=
+            Docstring(DocSection('a', DocDescription('x', 'y', '1', 'k'))))
+    assert (Docstring(DocSection('a', DocDescription('x', 'y', 'z', 'k'))) !=
+            Docstring(DocSection('a', DocDescription('x', 'y', 'z', '1'))))
+    assert (Docstring(DocSection('a', DocDescription('x', 'y', 'z', DocEquation('k')))) !=
+            Docstring(DocSection('a', DocDescription('x', 'y', 'z', DocEquation('1')))))
+    assert doc1.__dict__ == doc2.__dict__
 
 
 def test_parse_numpy():
     """Tests docinstance.numpy.parse_numpy."""
+    # monkeypatch equality for Docstring
+    Docstring.__eq__ = lambda self, other: self.__dict__ == other.__dict__
     # summary
     docstring = 'summary'
-    assert equal_docstrings(parse_numpy(docstring), Docstring(Summary('summary')))
+    assert parse_numpy(docstring) == Docstring(Summary('summary'))
     docstring = 'summary\n'
-    assert equal_docstrings(parse_numpy(docstring), Docstring(Summary('summary')))
+    assert parse_numpy(docstring) == Docstring(Summary('summary'))
     docstring = '\nsummary\n'
-    assert equal_docstrings(parse_numpy(docstring), Docstring(Summary('summary')))
+    assert parse_numpy(docstring) == Docstring(Summary('summary'))
     docstring = '    """summary\n    """'
-    assert equal_docstrings(parse_numpy(docstring, contains_quotes=True),
-                            Docstring(Summary('summary')))
+    assert parse_numpy(docstring, contains_quotes=True) == Docstring(Summary('summary'))
     # FIXME: this should raise an error
     docstring = '\n\nsummary\n'
-    assert equal_docstrings(parse_numpy(docstring), Docstring([Summary('summary')]))
+    assert parse_numpy(docstring), Docstring([Summary('summary')])
     docstring = '"""\n\nsummary\n"""'
     with pytest.raises(ValueError):
         parse_numpy(docstring, contains_quotes=True)
@@ -122,24 +68,23 @@ def test_parse_numpy():
 
     # extended
     docstring = 'summary\n\nblock1\n\nblock2'
-    assert equal_docstrings(parse_numpy(docstring),
-                            Docstring([Summary('summary'), ExtendedSummary(['block1', 'block2'])]))
+    assert (parse_numpy(docstring) ==
+            Docstring([Summary('summary'), ExtendedSummary(['block1', 'block2'])]))
     docstring = '\nsummary\n\nblock1\n\nblock2'
-    assert equal_docstrings(parse_numpy(docstring),
-                            Docstring([Summary('summary'), ExtendedSummary(['block1', 'block2'])]))
+    assert (parse_numpy(docstring) ==
+            Docstring([Summary('summary'), ExtendedSummary(['block1', 'block2'])]))
     docstring = '\nsummary\n\n\n\nblock2\n\n'
-    assert equal_docstrings(parse_numpy(docstring),
-                            Docstring([Summary('summary'), ExtendedSummary(['block2'])]))
+    assert (parse_numpy(docstring) ==
+            Docstring([Summary('summary'), ExtendedSummary(['block2'])]))
     # FIXME: is this a bug?
     docstring = '\n\nsummary\n\nblock1\n\nblock2'
-    assert equal_docstrings(parse_numpy(docstring),
-                            Docstring([Summary('summary'),
-                                       ExtendedSummary(['block1', 'block2'])]))
+    assert (parse_numpy(docstring) ==
+            Docstring([Summary('summary'), ExtendedSummary(['block1', 'block2'])]))
     # extended + headers
     docstring = 'summary\n\nblock1\n\nblock2\n\nheader\n------\nstuff'
-    assert equal_docstrings(parse_numpy(docstring),
-                            Docstring([Summary('summary'), ExtendedSummary(['block1', 'block2']),
-                                       DocSection('header', 'stuff')]))
+    assert (parse_numpy(docstring) ==
+            Docstring([Summary('summary'), ExtendedSummary(['block1', 'block2']),
+                       DocSection('header', 'stuff')]))
 
     # header with bad divider (-----)
     docstring = 'summary\n\nblock1\n\nblock2\n\nheader1\n--\nstuff\n\n'
@@ -151,85 +96,70 @@ def test_parse_numpy():
         # name + multiple descriptions
         docstring = ('summary\n\nblock1\n\nblock2\n\n{0}\n{1}\nabc\n    description1.\n'
                      '    description2.'.format(header.title(), '-'*len(header)))
-        assert equal_docstrings(parse_numpy(docstring),
-                                Docstring([Summary('summary'),
-                                           ExtendedSummary(['block1', 'block2']),
-                                           DocSection(header,
-                                                      DocDescription('abc',
-                                                                     descs=['description1.',
-                                                                            'description2.']))]))
+        assert (parse_numpy(docstring) ==
+                Docstring([Summary('summary'),
+                           ExtendedSummary(['block1', 'block2']),
+                           DocSection(header,
+                                      DocDescription('abc',
+                                                     descs=['description1.', 'description2.']))]))
         # name + types + multiple descriptions
         docstring = ('summary\n\nblock1\n\nblock2\n\n{0}\n{1}\nabc : str\n    description1.\n'
                      '    description2.'.format(header.title(), '-'*len(header)))
-        assert equal_docstrings(parse_numpy(docstring),
-                                Docstring([Summary('summary'),
-                                           ExtendedSummary(['block1', 'block2']),
-                                           DocSection(header,
-                                                      DocDescription('abc',
-                                                                     types='str',
-                                                                     descs=['description1.',
-                                                                            'description2.']))]))
+        assert (parse_numpy(docstring) ==
+                Docstring([Summary('summary'),
+                           ExtendedSummary(['block1', 'block2']),
+                           DocSection(header,
+                                      DocDescription('abc', types='str',
+                                                     descs=['description1.', 'description2.']))]))
         docstring = ('summary\n\nblock1\n\nblock2\n\n{0}\n{1}\nabc : {{str, int}}\n'
                      '    description1.\n'
                      '    description2.'.format(header.title(), '-'*len(header)))
-        assert equal_docstrings(parse_numpy(docstring),
-                                Docstring([Summary('summary'),
-                                           ExtendedSummary(['block1', 'block2']),
-                                           DocSection(header,
-                                                      DocDescription('abc',
-                                                                     types=['str', 'int'],
-                                                                     descs=['description1.',
-                                                                            'description2.']))]))
+        assert (parse_numpy(docstring) ==
+                Docstring([Summary('summary'),
+                           ExtendedSummary(['block1', 'block2']),
+                           DocSection(header,
+                                      DocDescription('abc', types=['str', 'int'],
+                                                     descs=['description1.', 'description2.']))]))
         # name + signature + multiple descriptions
         docstring = ('summary\n\nblock1\n\nblock2\n\n{0}\n{1}\nabc(x, y)\n    description1.\n'
                      '    description2.'.format(header.title(), '-'*len(header)))
-        assert equal_docstrings(parse_numpy(docstring),
-                                Docstring([Summary('summary'),
-                                           ExtendedSummary(['block1', 'block2']),
-                                           DocSection(header,
-                                                      DocDescription('abc',
-                                                                     signature='(x, y)',
-                                                                     descs=['description1.',
-                                                                            'description2.']))]))
+        assert (parse_numpy(docstring) ==
+                Docstring([Summary('summary'),
+                           ExtendedSummary(['block1', 'block2']),
+                           DocSection(header,
+                                      DocDescription('abc', signature='(x, y)',
+                                                     descs=['description1.', 'description2.']))]))
         # name + types + signature + multiple descriptions
         docstring = ('summary\n\nblock1\n\nblock2\n\n{0}\n{1}\nabc(x, y): str\n    description1.\n'
                      '    description2.'.format(header.title(), '-'*len(header)))
-        assert equal_docstrings(parse_numpy(docstring),
-                                Docstring([Summary('summary'),
-                                           ExtendedSummary(['block1', 'block2']),
-                                           DocSection(header,
-                                                      DocDescription('abc',
-                                                                     types='str',
-                                                                     signature='(x, y)',
-                                                                     descs=['description1.',
-                                                                            'description2.']))]))
+        assert (parse_numpy(docstring) ==
+                Docstring([Summary('summary'),
+                           ExtendedSummary(['block1', 'block2']),
+                           DocSection(header,
+                                      DocDescription('abc', types='str', signature='(x, y)',
+                                                     descs=['description1.', 'description2.']))]))
         # name + types + signature + multiple descriptions - extended summary
         docstring = ('summary\n\n{0}\n{1}\nabc(x, y): str\n    description1.\n'
                      '    description2.'.format(header.title(), '-'*len(header)))
-        assert equal_docstrings(parse_numpy(docstring),
-                                Docstring([Summary('summary'),
-                                           DocSection(header,
-                                                      DocDescription('abc',
-                                                                     types='str',
-                                                                     signature='(x, y)',
-                                                                     descs=['description1.',
-                                                                            'description2.']))]))
+        assert (parse_numpy(docstring) ==
+                Docstring([Summary('summary'),
+                           DocSection(header,
+                                      DocDescription('abc', types='str', signature='(x, y)',
+                                                     descs=['description1.', 'description2.']))]))
         # name + types
         docstring = ('summary\n\n{0}\n{1}\nabc: str\ndef: int'.format(header.title(),
                                                                       '-'*len(header)))
-        assert equal_docstrings(parse_numpy(docstring),
-                                Docstring([Summary('summary'),
-                                           DocSection(header,
-                                                      [DocDescription('abc', types='str'),
-                                                       DocDescription('def', types='int')])]))
+        assert (parse_numpy(docstring) ==
+                Docstring([Summary('summary'), DocSection(header,
+                                                          [DocDescription('abc', types='str'),
+                                                           DocDescription('def', types='int')])]))
 
 
 def test_parse_numpy_raw():
     """Test pydocstring.numpy_docstring.parse_numpy with raw strings."""
     docstring = '"""summary\n\nextended"""'
-    assert equal_docstrings(parse_numpy(docstring, contains_quotes=True),
-                            Docstring([Summary('summary'),
-                                       ExtendedSummary('extended')]))
+    assert (parse_numpy(docstring, contains_quotes=True) ==
+            Docstring([Summary('summary'), ExtendedSummary('extended')]))
     docstring = 'r"""summary\n\nextended"""'
     with pytest.raises(NotImplementedError):
         parse_numpy(docstring, contains_quotes=True)
@@ -291,20 +221,19 @@ def test_parse_numpy_self():
 
 def test_parse_numpy_equations():
     """Test pydocstring.numpy_docstring.parse_numpy with equations."""
+    # monkeypatch equality for Docstring
+    Docstring.__eq__ = lambda self, other: self.__dict__ == other.__dict__
     # equation in extended
     docstring = ('summary\n\n.. math::\n\n    \\frac{1}{2}')
-    assert equal_docstrings(parse_numpy(docstring),
-                            Docstring([Summary('summary'),
-                                       ExtendedSummary(DocEquation('\\frac{1}{2}'))]))
+    assert (parse_numpy(docstring) ==
+            Docstring([Summary('summary'), ExtendedSummary(DocEquation('\\frac{1}{2}'))]))
     docstring = ('summary\n\n'
                  '.. math::\n\n'
                  '    x &= 2\\\\\n'
                  '    &= y\\\\\n')
-    assert equal_docstrings(
-        parse_numpy(docstring),
-        Docstring([Summary('summary'),
-                   ExtendedSummary(DocEquation('x &= 2\\\\\n&= y\\\\'))])
-    )
+    assert (parse_numpy(docstring) ==
+            Docstring([Summary('summary'),
+                       ExtendedSummary(DocEquation('x &= 2\\\\\n&= y\\\\'))]))
     docstring = ('summary\n\n'
                  '.. math::\n\n'
                  '    x &= 2\\\\\n'
@@ -312,53 +241,44 @@ def test_parse_numpy_equations():
                  'Parameters\n'
                  '----------\n'
                  'a')
-    assert equal_docstrings(
-        parse_numpy(docstring),
-        Docstring([Summary('summary'),
-                   ExtendedSummary(DocEquation('x &= 2\\\\\n&= y\\\\')),
-                   Parameters(DocDescription('a'))]))
+    assert (parse_numpy(docstring) ==
+            Docstring([Summary('summary'),
+                       ExtendedSummary(DocEquation('x &= 2\\\\\n&= y\\\\')),
+                       Parameters(DocDescription('a'))]))
 
     # equation in parameter
     # single line equation
     docstring = ('summary\n\nParameters\n----------\na : float\n    .. math::\n\n    '
                  '    \\frac{1}{2}')
-    assert equal_docstrings(
-        parse_numpy(docstring),
-        Docstring([Summary('summary'),
-                   Parameters(DocDescription('a', types='float',
-                                             descs=DocEquation('\\frac{1}{2}')))])
-    )
+    assert (parse_numpy(docstring) ==
+            Docstring([Summary('summary'),
+                       Parameters(DocDescription('a', types='float',
+                                                 descs=DocEquation('\\frac{1}{2}')))]))
     # multi line equation
     docstring = ('summary\n\nParameters\n----------\na : float\n    .. math::\n\n'
                  '        \\frac{1}{2}\\\\\n        \\frac{1}{3}')
-    assert equal_docstrings(
-        parse_numpy(docstring),
-        Docstring([Summary('summary'),
-                   Parameters(DocDescription('a', types='float',
-                                             descs=DocEquation('\\frac{1}{2}\\\\\n'
-                                                               '\\frac{1}{3}\n')))])
-    )
+    assert (parse_numpy(docstring) ==
+            Docstring([Summary('summary'),
+                       Parameters(DocDescription('a', types='float',
+                                                 descs=DocEquation('\\frac{1}{2}\\\\\n'
+                                                                   '\\frac{1}{3}\n')))]))
     # multiple equations
     docstring = ('summary\n\nParameters\n----------\na : float\n    .. math::\n\n'
                  '        \\frac{1}{2}\n    ..math::\n        \\frac{1}{3}')
-    assert equal_docstrings(
-        parse_numpy(docstring),
-        Docstring([Summary('summary'),
-                   Parameters(DocDescription('a', types='float',
-                                             descs=[DocEquation('\\frac{1}{2}'),
-                                                    DocEquation('\\frac{1}{3}')]))])
-    )
+    assert (parse_numpy(docstring) ==
+            Docstring([Summary('summary'),
+                       Parameters(DocDescription('a', types='float',
+                                                 descs=[DocEquation('\\frac{1}{2}'),
+                                                        DocEquation('\\frac{1}{3}')]))]))
     # multiple equations and other descriptions
     docstring = ('summary\n\nParameters\n----------\na : float\n    Some float.\n    .. math::\n\n'
                  '        \\frac{1}{2}\n\n    Yes.\n    ..math::\n        \\frac{1}{3}\n'
                  '    This is the float.')
-    assert equal_docstrings(
-        parse_numpy(docstring),
-        Docstring([Summary('summary'),
-                   Parameters(DocDescription('a', types='float',
-                                             descs=['Some float.',
-                                                    DocEquation('\\frac{1}{2}'),
-                                                    'Yes.',
-                                                    DocEquation('\\frac{1}{3}'),
-                                                    'This is the float.']))])
-    )
+    assert (parse_numpy(docstring) ==
+            Docstring([Summary('summary'),
+                       Parameters(DocDescription('a', types='float',
+                                                 descs=['Some float.',
+                                                        DocEquation('\\frac{1}{2}'),
+                                                        'Yes.',
+                                                        DocEquation('\\frac{1}{3}'),
+                                                        'This is the float.']))]))
