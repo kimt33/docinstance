@@ -1,58 +1,16 @@
 """Parser for numpy docstring."""
 import re
 import inspect
+from docinstance.parser.equation import parse_equation
 from docinstance.docstring import Docstring
 from docinstance.content.description import DocDescription
 from docinstance.content.section import (DocSection, Summary, ExtendedSummary, Parameters,
                                          Attributes, Methods, Returns, Yields, OtherParameters,
                                          Raises, Warns, Warnings, SeeAlso, Notes, References,
                                          Examples)
+from docinstance.content.equation import DocEquation
 
 
-def is_math(text):
-    """Check if the given text is a math equation in rst format.
-
-    Parameters
-    ----------
-    text : str
-        Text to check.
-
-    Returns
-    -------
-    is_math :bool
-        True if text is a math equation.
-        False otherwise.
-
-    """
-    re_math = re.compile(r'^\n*\.\.\s*math::\n*(?:\n\s+.+)+\n*$')
-    return bool(re_math.search(text))
-
-
-def extract_math(text):
-    """Extract multiline math equation from the text.
-
-    Parameters
-    ----------
-    text : str
-        Text from which the math equation is extracted.
-
-    Returns
-    -------
-    split_eqns : list of str
-        Text where the math equations have been separated from the rest of the string.
-
-    """
-    re_math = re.compile(r'\n*(\.\.\s*math::\n*(?:    .+\n?)+)\n*')
-    # split equations
-    split_eqns = re_math.split(text)
-    # remove empty lines
-    split_eqns = [lines for lines in split_eqns if lines != '']
-    # remove trailing newline
-    split_eqns = [re.sub(r'\n*$', '', lines) if is_math(lines) else lines for lines in split_eqns]
-    return split_eqns
-
-
-# FIXME: equations need to be treated differently
 def parse_numpy(docstring, contains_quotes=False):
     """Parse a docstring in numpy format into a Docstring instance.
 
@@ -127,8 +85,8 @@ def parse_numpy(docstring, contains_quotes=False):
     re_header = re.compile(r'\n*(.+)\n(-+)\n+')
     if re_header.search(docstring) is None:
         # split into blocks by math equations and multiple newlines
-        extended = [[lines] if is_math(lines) else re.split(r'\n\n+', lines)
-                    for lines in extract_math(docstring)]
+        extended = [[lines] if isinstance(lines, DocEquation) else re.split(r'\n\n+', lines)
+                    for lines in parse_equation(docstring)]
         extended = [line for lines in extended for line in lines]
         extended_contents = []
         for block in extended:
@@ -136,7 +94,7 @@ def parse_numpy(docstring, contains_quotes=False):
             # there is no empty blocks
             # if block == '':
             #     continue
-            if not is_math(block):
+            if not isinstance(block, DocEquation):
                 # remove quotes
                 block = re.sub(r'\n*{0}$'.format(quotes), '', block)
                 # remove trailing newlines
@@ -154,8 +112,8 @@ def parse_numpy(docstring, contains_quotes=False):
     extended, *split_docstring = split_docstring
     # FIXME: repeated code
     # extract math and split blocks
-    extended = [[lines] if is_math(lines) else re.split(r'\n\n+', lines)
-                for lines in extract_math(extended)]
+    extended = [[lines] if isinstance(lines, DocEquation) else re.split(r'\n\n+', lines)
+                for lines in parse_equation(extended)]
     extended = [line for lines in extended for line in lines]
     # process blocks
     processed_extended = []
@@ -164,7 +122,7 @@ def parse_numpy(docstring, contains_quotes=False):
         # there is no empty blocks
         # if block == '':
         #     continue
-        if not is_math(block):
+        if not isinstance(block, DocEquation):
             # remove quotes
             block = re.sub(r'\n*{0}$'.format(quotes), '', block)
             # remove trailing newlines
@@ -228,10 +186,11 @@ def parse_numpy(docstring, contains_quotes=False):
                 # add period (only the last line is not missing the period)
                 descs = [line + '.' for line in descs[:-1]] + descs[-1:]
                 # extract equations
-                descs = [line for lines in descs for line in extract_math(lines)]
+                descs = [line for lines in descs for line in parse_equation(lines)]
                 # non math blocks will replace newlines with spaces.
                 # math blocks will add newline at the end
-                descs = [line+'\n' if is_math(line) else line.replace('\n', ' ') for line in descs]
+                descs = [line if isinstance(line, DocEquation) else line.replace('\n', ' ')
+                         for line in descs]
 
                 # store
                 header_contents.append(DocDescription(name, signature=signature, types=types,

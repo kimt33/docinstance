@@ -3,28 +3,8 @@ from nose.tools import assert_raises
 from docinstance.docstring import Docstring
 from docinstance.content.section import (DocSection, Summary, ExtendedSummary, Parameters)
 from docinstance.content.description import DocDescription
-from docinstance.parser.numpy import parse_numpy, is_math, extract_math
-
-
-def test_is_math():
-    """Test docinstance.parser.numpy.is_math."""
-    assert is_math('.. math::\n\n    x&=2\\\\\n    &=3')
-    assert is_math('.. math::\n\n    x&=2\\\\\n    &=3\n')
-    assert is_math('\n.. math::\n\n    x&=2\\\\\n    &=3\n\n\n')
-    assert not is_math('x\n.. math::\n\n    x&=2\\\\\n    &=3\n\n\n')
-    assert is_math('.. math::\n\n    x=2')
-
-
-def test_extract_math():
-    """Test docinstance.parser.numpy.extract_math."""
-    assert (extract_math('.. math::\n\n    x &= 2\\\\\n    &= 3\n') ==
-            ['.. math::\n\n    x &= 2\\\\\n    &= 3'])
-    assert (extract_math('x\n.. math::\n\n    x &= 2\\\\\n    &= 3\n') ==
-            ['x', '.. math::\n\n    x &= 2\\\\\n    &= 3'])
-    assert (extract_math('x\n.. math::\n\n    x &= 2\\\\\n    &= 3\n\n\n') ==
-            ['x', '.. math::\n\n    x &= 2\\\\\n    &= 3'])
-    assert (extract_math('x\n.. math::\n\n    x &= 2\\\\\n    &= 3\n\ny') ==
-            ['x', '.. math::\n\n    x &= 2\\\\\n    &= 3', 'y'])
+from docinstance.content.equation import DocEquation
+from docinstance.parser.numpy import parse_numpy
 
 
 # TODO: move into __eq__ of appropriate classes?
@@ -55,9 +35,23 @@ def equal_docstrings(doc1, doc2):
             if isinstance(content1, str) and isinstance(content2, str):
                 if content1 != content2:
                     return False
-            # elif isinstance(content1, DocDescription) and isinstance(content2, DocDescription):
-            elif (content1.name != content2.name or content1.signature != content2.signature or
-                  content1.types != content2.types or content1.descs != content2.descs):
+            elif isinstance(content1, DocDescription) and isinstance(content2, DocDescription):
+                if (content1.name != content2.name or content1.signature != content2.signature or
+                        content1.types != content2.types):
+                    return False
+                elif len(content1.descs) != len(content2.descs):
+                    return False
+                for desc1, desc2 in zip(content1.descs, content2.descs):
+                    if isinstance(desc1, str) or isinstance(desc2, str):
+                        if desc1 != desc2:
+                            return False
+                    # is DocEquation
+                    elif desc1.equations != desc2.equations:
+                        return False
+            elif isinstance(content1, DocEquation) and isinstance(content2, DocEquation):
+                if content1.equations != content2.equations:
+                    return False
+            else:
                 return False
     return True
 
@@ -69,13 +63,13 @@ def test_compare_docinstances():
                       DocSection('section2', [DocDescription('name1', '(a, b)', str,
                                                              ['desc1', 'desc2']),
                                               DocDescription('name2', '(c, d)', int,
-                                                             ['desc3', 'desc4'])])])
+                                                             ['desc3', DocEquation('desc4')])])])
     doc2 = Docstring(['summary',
                       DocSection('section1', ['content1', 'content2']),
                       DocSection('section2', [DocDescription('name1', '(a, b)', str,
                                                              ['desc1', 'desc2']),
                                               DocDescription('name2', '(c, d)', int,
-                                                             ['desc3', 'desc4'])])])
+                                                             ['desc3', DocEquation('desc4')])])])
     assert not equal_docstrings(doc1, 1)
     assert not equal_docstrings(1, doc2)
     assert not equal_docstrings(Docstring(['a', 'b']),
@@ -94,6 +88,10 @@ def test_compare_docinstances():
                                 Docstring(DocSection('a', DocDescription('x', 'y', '1', 'k'))))
     assert not equal_docstrings(Docstring(DocSection('a', DocDescription('x', 'y', 'z', 'k'))),
                                 Docstring(DocSection('a', DocDescription('x', 'y', 'z', '1'))))
+    assert not equal_docstrings(Docstring(DocSection('a', DocDescription('x', 'y', 'z',
+                                                                         DocEquation('k')))),
+                                Docstring(DocSection('a', DocDescription('x', 'y', 'z',
+                                                                         DocEquation('1')))))
     assert equal_docstrings(doc1, doc2)
 
 
@@ -292,7 +290,7 @@ def test_parse_numpy_equations():
     docstring = ('summary\n\n.. math::\n\n    \\frac{1}{2}')
     assert equal_docstrings(parse_numpy(docstring),
                             Docstring([Summary('summary'),
-                                       ExtendedSummary('.. math::\n\n    \\frac{1}{2}')]))
+                                       ExtendedSummary(DocEquation('\\frac{1}{2}'))]))
     docstring = ('summary\n\n'
                  '.. math::\n\n'
                  '    x &= 2\\\\\n'
@@ -300,7 +298,7 @@ def test_parse_numpy_equations():
     assert equal_docstrings(
         parse_numpy(docstring),
         Docstring([Summary('summary'),
-                   ExtendedSummary('.. math::\n\n    x &= 2\\\\\n    &= y\\\\')])
+                   ExtendedSummary(DocEquation('x &= 2\\\\\n&= y\\\\'))])
     )
     docstring = ('summary\n\n'
                  '.. math::\n\n'
@@ -312,7 +310,7 @@ def test_parse_numpy_equations():
     assert equal_docstrings(
         parse_numpy(docstring),
         Docstring([Summary('summary'),
-                   ExtendedSummary('.. math::\n\n    x &= 2\\\\\n    &= y\\\\'),
+                   ExtendedSummary(DocEquation('x &= 2\\\\\n&= y\\\\')),
                    Parameters(DocDescription('a'))]))
 
     # equation in parameter
@@ -323,7 +321,7 @@ def test_parse_numpy_equations():
         parse_numpy(docstring),
         Docstring([Summary('summary'),
                    Parameters(DocDescription('a', types='float',
-                                             descs='.. math::\n\n    \\frac{1}{2}\n'))])
+                                             descs=DocEquation('\\frac{1}{2}')))])
     )
     # multi line equation
     docstring = ('summary\n\nParameters\n----------\na : float\n    .. math::\n\n'
@@ -332,8 +330,8 @@ def test_parse_numpy_equations():
         parse_numpy(docstring),
         Docstring([Summary('summary'),
                    Parameters(DocDescription('a', types='float',
-                                             descs=['.. math::\n\n    \\frac{1}{2}\\\\\n'
-                                                    '    \\frac{1}{3}\n']))])
+                                             descs=DocEquation('\\frac{1}{2}\\\\\n'
+                                                               '\\frac{1}{3}\n')))])
     )
     # multiple equations
     docstring = ('summary\n\nParameters\n----------\na : float\n    .. math::\n\n'
@@ -342,8 +340,8 @@ def test_parse_numpy_equations():
         parse_numpy(docstring),
         Docstring([Summary('summary'),
                    Parameters(DocDescription('a', types='float',
-                                             descs=['.. math::\n\n    \\frac{1}{2}\n',
-                                                    '..math::\n    \\frac{1}{3}\n']))])
+                                             descs=[DocEquation('\\frac{1}{2}'),
+                                                    DocEquation('\\frac{1}{3}')]))])
     )
     # multiple equations and other descriptions
     docstring = ('summary\n\nParameters\n----------\na : float\n    Some float.\n    .. math::\n\n'
@@ -354,8 +352,8 @@ def test_parse_numpy_equations():
         Docstring([Summary('summary'),
                    Parameters(DocDescription('a', types='float',
                                              descs=['Some float.',
-                                                    '.. math::\n\n    \\frac{1}{2}\n',
+                                                    DocEquation('\\frac{1}{2}'),
                                                     'Yes.',
-                                                    '..math::\n    \\frac{1}{3}\n',
+                                                    DocEquation('\\frac{1}{3}'),
                                                     'This is the float.']))])
     )

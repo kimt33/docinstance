@@ -1,6 +1,7 @@
 """Class for representing a description of objects/errors in the docstring."""
 from docinstance.utils import wrap
 from docinstance.content.base import DocContent
+from docinstance.content.equation import DocEquation
 
 
 class DocDescription(DocContent):
@@ -24,7 +25,7 @@ class DocDescription(DocContent):
         Allowed types of the given object.
         If multiple classes are given, then the last one is assumed to be the default value.
         Used to describe types of a parameter and of the value returned by a method.
-    descs : list of str
+    descs : list of {str, DocEquation}
         Descriptions of the given object.
         If multiple descriptions are given, then each string in the list/tuple provides a
         paragraph.
@@ -55,7 +56,7 @@ class DocDescription(DocContent):
             Allowed types of the given object.
             If multiple classes are given, then the last one is assumed to be the default value.
             Default is no types.
-        descs : {str, list/tuple of str, None}
+        descs : {str, list/tuple of str/DocEquation, None}
             Descriptions of the given object.
             If multiple descriptions are given, then each string in the list/tuple provides a
             paragraph.
@@ -92,9 +93,10 @@ class DocDescription(DocContent):
 
         if descs is None:
             descs = []
-        elif isinstance(descs, str):
+        elif isinstance(descs, (str, DocEquation)):
             descs = [descs]
-        elif not (isinstance(descs, (list, tuple)) and all(isinstance(i, str) for i in descs)):
+        elif not (isinstance(descs, (list, tuple)) and
+                  all(isinstance(i, (str, DocEquation)) for i in descs)):
             raise TypeError("Descriptions of the object/error must be given as a string or "
                             "list/tuple of strings")
         self.descs = list(descs)
