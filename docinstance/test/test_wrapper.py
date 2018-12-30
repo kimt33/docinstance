@@ -16,7 +16,7 @@ def test_kwarg_wrapper():
         func.x = x
         return func
 
-    def f():
+    def f():  # pragma: no cover
         pass
 
     with pytest.raises(AttributeError):
@@ -27,12 +27,12 @@ def test_kwarg_wrapper():
     assert g.x == 2
 
     @test
-    def f():
+    def f():  # pragma: no cover
         pass
     assert f.x == 1
 
     @test(x=2)
-    def f():
+    def f():  # pragma: no cover
         pass
     assert f.x == 2
 
@@ -41,7 +41,7 @@ def test_wrapper_docstring_on_func():
     """Test docinstance.wrapper.docstring on a function."""
     # no _docinstance
     @docstring
-    def test():
+    def test():  # pragma: no cover
         """Test docstring.
 
         Parameters
@@ -69,7 +69,7 @@ def test_wrapper_docstring_on_func():
                    DocDescription('x', types=int, descs='Something.'))
     ])
 
-    def test():
+    def test():  # pragma: no cover
         pass
 
     # FIXME: this is terrible because contents inside function is ignored when declaring a function
@@ -102,7 +102,7 @@ def test_wrapper_docstring_on_class():
     """Test docinstance.wrapper.docstring on a class."""
     # no _docinstance
     @docstring
-    class Test:
+    class Test:  # pragma: no cover
         """Test docstring.
 
         Attributes
@@ -142,7 +142,7 @@ def test_wrapper_docstring_on_class():
 
     # w/o indentation
     @docstring
-    class Test:
+    class Test:  # pragma: no cover
         _docinstance = docinstance1
 
         def f(self):
@@ -160,7 +160,7 @@ def test_wrapper_docstring_on_class():
 
     # w/ indentation
     @docstring(indent_level=1)
-    class Test:
+    class Test:  # pragma: no cover
         _docinstance = docinstance1
 
         def f(self):
@@ -179,7 +179,7 @@ def test_wrapper_docstring_recursive_on_class():
     """Test docinstance.wrapper.docstring_recursive on a class."""
     # no _docinstance
     @docstring_recursive
-    class Test:
+    class Test:  # pragma: no cover
         """Test docstring.
 
         Attributes
@@ -225,7 +225,7 @@ def test_wrapper_docstring_recursive_on_class():
 
     # w/o indentation
     @docstring_recursive
-    class Test:
+    class Test:  # pragma: no cover
         _docinstance = docinstance1
 
         def f(self):
@@ -247,7 +247,7 @@ def test_wrapper_docstring_recursive_on_class():
 
     # w indentation
     @docstring_recursive(indent_level=2)
-    class Test:
+    class Test:  # pragma: no cover
         _docinstance = docinstance1
 
         def f(self):
@@ -291,7 +291,7 @@ test_docstring_current_module._docinstance = Docstring([
 ])
 
 
-def supplementary_docstring_current_module():
+def supplementary_docstring_current_module():  # pragma: no cover
     """To be used to test docstring_current_module in test_docstring_current_module."""
     pass
 

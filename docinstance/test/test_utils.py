@@ -51,7 +51,7 @@ def test_wrap():
 
 def test_extract_members():
     """Test docinstance.utils.extract_members."""
-    class Test:
+    class Test:  # pragma: no cover
         @property
         def f(self):
             return 1

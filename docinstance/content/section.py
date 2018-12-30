@@ -98,10 +98,9 @@ class DocSection(DocContent):
                          tabsize=tabsize)
             divider = wrap('-' * len(self.header), width=width, indent_level=indent_level,
                            tabsize=tabsize)
-            # FIXME: following is redundant because the wrap of the divider raises an error when it
-            # is does not fit into the given width
-            if len(title) > 1 or len(divider) > 1:
-                raise ValueError('Title is too long for the given width and indentation.')
+            # NOTE: error will be raised if the line width is not wide enough to fit the title and
+            # the divider in one line because the divider is one word and wrap will complain if the
+            # line width is not big enough to fit the first word
             output += '{0}\n{1}\n'.format(title[0], divider[0])
         # contents
         for paragraph in self.contents:
