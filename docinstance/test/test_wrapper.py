@@ -1,7 +1,7 @@
 """Test docinstance.wrapper."""
 import importlib
 import os
-from nose.tools import assert_raises
+import pytest
 from docinstance.wrapper import (kwarg_wrapper, docstring, docstring_recursive,
                                  docstring_current_module, docstring_modify_import)
 from docinstance.docstring import Docstring
@@ -18,7 +18,9 @@ def test_kwarg_wrapper():
 
     def f():
         pass
-    assert_raises(AttributeError, lambda: f.x)
+
+    with pytest.raises(AttributeError):
+        f.x
     g = test(f)
     assert g.x == 1
     g = test(f, x=2)

@@ -1,12 +1,14 @@
 """Test docinstance.content.equation."""
-from nose.tools import assert_raises
+import pytest
 from docinstance.content.equation import DocEquation
 
 
 def test_init():
     """Test DocEquation.__init__."""
-    assert_raises(TypeError, DocEquation, 1)
-    assert_raises(TypeError, DocEquation, ['x + 1', 'y + 2'])
+    with pytest.raises(TypeError):
+        DocEquation(1)
+    with pytest.raises(TypeError):
+        DocEquation(['x + 1', 'y + 2'])
     test = DocEquation('a + b = 2')
     assert test.equations == ['a + b = 2']
     test = DocEquation('a + b &= 2\\\\\nc + d &= 3')
@@ -22,7 +24,8 @@ def test_make_numpy_docstring():
     test = DocEquation('a + b = 2')
     assert test.make_numpy_docstring(19, 0, 4) == '.. math:: a + b = 2\n\n'
     assert test.make_numpy_docstring(18, 0, 4) == '.. math::\n\n    a + b = 2\n\n'
-    assert_raises(ValueError, test.make_numpy_docstring, 8, 0, 4)
+    with pytest.raises(ValueError):
+        test.make_numpy_docstring(8, 0, 4)
     test = DocEquation('a + b &= 2\\\\\nc + d &= 3\\\\\n')
     assert (test.make_numpy_docstring(18, 0, 4) ==
             '.. math::\n\n'

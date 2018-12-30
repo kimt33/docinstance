@@ -1,7 +1,7 @@
 """Parser for numpy docstring."""
 import re
 import inspect
-from docinstance.parser.equation import parse_equation
+from docinstance.parser.latex import parse_equation
 from docinstance.docstring import Docstring
 from docinstance.content.description import DocDescription
 from docinstance.content.section import (DocSection, Summary, ExtendedSummary, Parameters,

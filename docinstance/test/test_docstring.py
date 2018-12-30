@@ -1,5 +1,5 @@
 """Test docinstance.docstring."""
-from nose.tools import assert_raises
+import pytest
 from docinstance.docstring import Docstring
 from docinstance.content.section import DocSection
 from docinstance.content.description import DocDescription
@@ -7,13 +7,20 @@ from docinstance.content.description import DocDescription
 
 def test_init():
     """Test Docstring.__init__."""
-    assert_raises(TypeError, Docstring, 1)
-    assert_raises(TypeError, Docstring, {'1'})
-    assert_raises(TypeError, Docstring, [1])
-    assert_raises(TypeError, Docstring, ['1', 1])
-    assert_raises(ValueError, Docstring, [])
-    assert_raises(ValueError, Docstring, '1', 'nothing')
-    assert_raises(ValueError, Docstring, '1', None)
+    with pytest.raises(TypeError):
+        Docstring(1)
+    with pytest.raises(TypeError):
+        Docstring({'1'})
+    with pytest.raises(TypeError):
+        Docstring([1])
+    with pytest.raises(TypeError):
+        Docstring(['1', 1])
+    with pytest.raises(ValueError):
+        Docstring([])
+    with pytest.raises(ValueError):
+        Docstring('1', 'nothing')
+    with pytest.raises(ValueError):
+        Docstring('1', None)
 
     test = Docstring('some text')
     assert isinstance(test.sections, list)
@@ -49,21 +56,32 @@ def test_make_docstring():
     """Test Docstring.make_docstring."""
     test = Docstring(['summary', 'extended summary', DocSection('parameters', '')])
     # standard input check
-    assert_raises(TypeError, test.make_docstring, width=100.0)
-    assert_raises(ValueError, test.make_docstring, width=-2)
-    assert_raises(ValueError, test.make_docstring, width=0)
-    assert_raises(TypeError, test.make_docstring, indent_level=2.0)
-    assert_raises(ValueError, test.make_docstring, indent_level=-1)
-    assert_raises(TypeError, test.make_docstring, tabsize=2.0)
-    assert_raises(ValueError, test.make_docstring, tabsize=-2)
-    assert_raises(ValueError, test.make_docstring, tabsize=0)
-    assert_raises(ValueError, test.make_docstring, style='random style')
+    with pytest.raises(TypeError):
+        test.make_docstring(width=100.0)
+    with pytest.raises(ValueError):
+        test.make_docstring(width=-2)
+    with pytest.raises(ValueError):
+        test.make_docstring(width=0)
+    with pytest.raises(TypeError):
+        test.make_docstring(indent_level=2.0)
+    with pytest.raises(ValueError):
+        test.make_docstring(indent_level=-1)
+    with pytest.raises(TypeError):
+        test.make_docstring(tabsize=2.0)
+    with pytest.raises(ValueError):
+        test.make_docstring(tabsize=-2)
+    with pytest.raises(ValueError):
+        test.make_docstring(tabsize=0)
+    with pytest.raises(ValueError):
+        test.make_docstring(style='random style')
     # bad ordering
     test = Docstring(['summary', DocSection('parameters', ''), 'extended summary'])
-    assert_raises(ValueError, test.make_docstring, style='numpy')
+    with pytest.raises(ValueError):
+        test.make_docstring(style='numpy')
     # check summary errors
     test = Docstring([DocSection('parameters', DocDescription('something'))])
-    assert_raises(ValueError, test.make_docstring)
+    with pytest.raises(ValueError):
+        test.make_docstring()
     # one line summary
     test = Docstring('very very long summary')
     assert test.make_docstring(width=25) == 'very very long summary\n\n'
@@ -92,8 +110,10 @@ def test_make_docstring():
                                                 descs='Example.'))])
     assert (test.make_docstring(width=25, style='numpy with signature') ==
             'summary\n\nMethods\n-------\nfunc1(a, b) : str\n    Example.\n\n')
-    assert_raises(NotImplementedError, test.make_docstring, style='google')
-    assert_raises(NotImplementedError, test.make_docstring, style='rst')
+    with pytest.raises(NotImplementedError):
+        test.make_docstring(style='google')
+    with pytest.raises(NotImplementedError):
+        test.make_docstring(style='rst')
 
 
 def test_check_section_order():
@@ -107,10 +127,12 @@ def test_check_section_order():
     # note that the unidentified seections are not permitted for numpy style
     test = Docstring(['summary', DocSection('asdfdsaf', ''), 'extended', DocSection('warns', ''),
                       DocSection('parameters', '')])
-    assert_raises(ValueError, test.check_section_order, 'numpy')
+    with pytest.raises(ValueError):
+        test.check_section_order('numpy')
     test = Docstring(['summary', 'extended', DocSection('warns', ''), DocSection('parameters', ''),
                       DocSection('asdfdsaf', '')])
-    assert_raises(ValueError, test.check_section_order, 'numpy')
+    with pytest.raises(ValueError):
+        test.check_section_order('numpy')
 
     # other styles do not enforce such ordering
     test = Docstring(['summary', DocSection('asdfdsaf', ''), 'extended', DocSection('warns', ''),

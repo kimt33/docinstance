@@ -1,20 +1,26 @@
 """Test docinstance.content.section."""
-from nose.tools import assert_raises
-from docinstance.content.section import (DocSection, Summary, ExtendedSummary, Parameters, 
+import pytest
+from docinstance.content.section import (DocSection, Summary, ExtendedSummary, Parameters,
                                          Attributes, Methods, Returns, Yields, OtherParameters,
-                                         Raises, Warns, Warnings, SeeAlso, Notes, References, 
-                                         Examples) 
+                                         Raises, Warns, Warnings, SeeAlso, Notes, References,
+                                         Examples)
 from docinstance.content.description import DocDescription
 
 
 def test_init():
     """Test DocSection.__init__."""
-    assert_raises(TypeError, DocSection, 1, '')
-    assert_raises(TypeError, DocSection, ['1'], '')
-    assert_raises(TypeError, DocSection, '1', 1)
-    assert_raises(TypeError, DocSection, '1', {'1'})
-    assert_raises(TypeError, DocSection, '1', ['1', DocDescription('test')])
-    assert_raises(TypeError, DocSection, '1', [DocDescription('test'), '1'])
+    with pytest.raises(TypeError):
+        DocSection(1, '')
+    with pytest.raises(TypeError):
+        DocSection(['1'], '')
+    with pytest.raises(TypeError):
+        DocSection('1', 1)
+    with pytest.raises(TypeError):
+        DocSection('1', {'1'})
+    with pytest.raises(TypeError):
+        DocSection('1', ['1', DocDescription('test')])
+    with pytest.raises(TypeError):
+        DocSection('1', [DocDescription('test'), '1'])
 
     test = DocSection('header name', 'hello')
     assert test.header == 'header name'
@@ -70,20 +76,24 @@ def test_make_google_docstring():
     """Test DocSection.make_google_docstring."""
     test = DocSection('header name',
                       DocDescription('var_name', signature='(a, b)', types=str, descs='Example.'))
-    assert_raises(NotImplementedError, test.make_google_docstring, 20, 0, 4)
+    with pytest.raises(NotImplementedError):
+        test.make_google_docstring(20, 0, 4)
 
 
 def test_make_rst_docstring():
     """Test DocSection.make_rst_docstring."""
     test = DocSection('header name',
                       DocDescription('var_name', signature='(a, b)', types=str, descs='Example.'))
-    assert_raises(NotImplementedError, test.make_rst_docstring, 20, 0, 4)
+    with pytest.raises(NotImplementedError):
+        test.make_rst_docstring(20, 0, 4)
 
 
 def test_section_summary_init():
     """Test Summary.__init__."""
-    assert_raises(TypeError, Summary, ['summary'])
-    assert_raises(TypeError, Summary, DocDescription('something'))
+    with pytest.raises(TypeError):
+        Summary(['summary'])
+    with pytest.raises(TypeError):
+        Summary(DocDescription('something'))
     test = Summary('very very long summary')
     assert test.header == ''
     assert test.contents == ['very very long summary']
@@ -115,7 +125,8 @@ def test_section_summary_make_docstring():
             'very very long summary')
 
     test = Summary('very very very very very very long summary')
-    assert_raises(ValueError, test.make_docstring, 30, 0, 4)
+    with pytest.raises(ValueError):
+        test.make_docstring(30, 0, 4)
 
 
 def test_section_extended_summary():

@@ -1,21 +1,32 @@
 """Test docinstance.content.description."""
-from nose.tools import assert_raises
+import pytest
 from docinstance.content.description import DocDescription
 
 
 def test_init():
     """Test DocDescription.__init__."""
-    assert_raises(TypeError, DocDescription, [])
-    assert_raises(TypeError, DocDescription, 2)
-    assert_raises(TypeError, DocDescription, 'test', signature=1)
-    assert_raises(TypeError, DocDescription, 'test', signature='', types=1)
-    assert_raises(TypeError, DocDescription, 'test', signature='', types=[1])
-    assert_raises(TypeError, DocDescription, 'test', signature='', types={str})
-    assert_raises(TypeError, DocDescription, 'test', signature='', types=[str, 1])
-    assert_raises(TypeError, DocDescription, 'test', signature='', types=str, descs=1)
-    assert_raises(TypeError, DocDescription, 'test', signature='', types=str, descs=[1])
-    assert_raises(TypeError, DocDescription, 'test', signature='', types=str, descs={'1'})
-    assert_raises(TypeError, DocDescription, 'test', signature='', types=str, descs=['1', 2])
+    with pytest.raises(TypeError):
+        DocDescription([])
+    with pytest.raises(TypeError):
+        DocDescription(2)
+    with pytest.raises(TypeError):
+        DocDescription('test', signature=1)
+    with pytest.raises(TypeError):
+        DocDescription('test', signature='', types=1)
+    with pytest.raises(TypeError):
+        DocDescription('test', signature='', types=[1])
+    with pytest.raises(TypeError):
+        DocDescription('test', signature='', types={str})
+    with pytest.raises(TypeError):
+        DocDescription('test', signature='', types=[str, 1])
+    with pytest.raises(TypeError):
+        DocDescription('test', signature='', types=str, descs=1)
+    with pytest.raises(TypeError):
+        DocDescription('test', signature='', types=str, descs=[1])
+    with pytest.raises(TypeError):
+        DocDescription('test', signature='', types=str, descs={'1'})
+    with pytest.raises(TypeError):
+        DocDescription('test', signature='', types=str, descs=['1', 2])
 
     test = DocDescription('test')
     assert test.name == 'test'
@@ -47,17 +58,22 @@ def test_make_numpy_docstring():
     assert test.make_numpy_docstring(9, 0, 4) == 'var_name\n    hello\n'
     # one type
     test = DocDescription('var_name', types=str, descs=['hello'])
-    assert_raises(ValueError, test.make_numpy_docstring, 13, 0, 4)
-    assert_raises(ValueError, test.make_numpy_docstring, 14, 1, 2)
+    with pytest.raises(ValueError):
+        test.make_numpy_docstring(13, 0, 4)
+    with pytest.raises(ValueError):
+        test.make_numpy_docstring(14, 1, 2)
     assert test.make_numpy_docstring(14, 0, 4) == 'var_name : str\n    hello\n'
     assert test.make_numpy_docstring(16, 1, 2) == '  var_name : str\n    hello\n'
     # multiple types
     test = DocDescription('var_name', types=[str, int, bool], descs=['hello'])
-    assert_raises(ValueError, test.make_numpy_docstring, 15, 0, 4)
-    assert_raises(ValueError, test.make_numpy_docstring, 16, 1, 2)
+    with pytest.raises(ValueError):
+        test.make_numpy_docstring(15, 0, 4)
+    with pytest.raises(ValueError):
+        test.make_numpy_docstring(16, 1, 2)
     # NOTE: following raises an error even though width is big enough for 'var_name : {str,' because
     # the `utils.wrap` complains
-    assert_raises(ValueError, test.make_numpy_docstring, 16, 0, 4)
+    with pytest.raises(ValueError):
+        test.make_numpy_docstring(16, 0, 4)
     assert test.make_numpy_docstring(27, 0, 4) == 'var_name : {str, int, bool}\n    hello\n'
     assert (test.make_numpy_docstring(26, 0, 4) ==
             'var_name : {str, int,\n            bool}\n    hello\n')

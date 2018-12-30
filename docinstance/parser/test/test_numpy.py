@@ -1,5 +1,5 @@
 """Tests for docinstance.parser.numpy."""
-from nose.tools import assert_raises
+import pytest
 from docinstance.docstring import Docstring
 from docinstance.content.section import (DocSection, Summary, ExtendedSummary, Parameters)
 from docinstance.content.description import DocDescription
@@ -111,11 +111,14 @@ def test_parse_numpy():
     docstring = '\n\nsummary\n'
     assert equal_docstrings(parse_numpy(docstring), Docstring([Summary('summary')]))
     docstring = '"""\n\nsummary\n"""'
-    assert_raises(ValueError, parse_numpy, docstring, contains_quotes=True)
+    with pytest.raises(ValueError):
+        parse_numpy(docstring, contains_quotes=True)
     docstring = '    """\n\n    summary\n    """'
-    assert_raises(ValueError, parse_numpy, docstring, contains_quotes=True)
+    with pytest.raises(ValueError):
+        parse_numpy(docstring, contains_quotes=True)
     docstring = 'summary\na'
-    assert_raises(ValueError, parse_numpy, docstring)
+    with pytest.raises(ValueError):
+        parse_numpy(docstring)
 
     # extended
     docstring = 'summary\n\nblock1\n\nblock2'
@@ -140,7 +143,8 @@ def test_parse_numpy():
 
     # header with bad divider (-----)
     docstring = 'summary\n\nblock1\n\nblock2\n\nheader1\n--\nstuff\n\n'
-    assert_raises(ValueError, parse_numpy, docstring)
+    with pytest.raises(ValueError):
+        parse_numpy(docstring)
 
     for header in ['parameters', 'attributes', 'methods', 'returns', 'yields', 'raises',
                    'other parameters', 'see also']:
@@ -227,7 +231,8 @@ def test_parse_numpy_raw():
                             Docstring([Summary('summary'),
                                        ExtendedSummary('extended')]))
     docstring = 'r"""summary\n\nextended"""'
-    assert_raises(NotImplementedError, parse_numpy, docstring, contains_quotes=True)
+    with pytest.raises(NotImplementedError):
+        parse_numpy(docstring, contains_quotes=True)
 
 
 def test_parse_numpy_self():

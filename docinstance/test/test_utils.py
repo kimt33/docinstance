@@ -1,4 +1,4 @@
-from nose.tools import assert_raises
+import pytest
 import docinstance.utils
 
 
@@ -40,13 +40,13 @@ def test_wrap():
                 'less than the given length.'])
 
     # too much indentation
-    assert_raises(ValueError,
-                  docinstance.utils.wrap, 'hello my name is', width=5, indent_level=3, tabsize=4)
+    with pytest.raises(ValueError):
+        docinstance.utils.wrap('hello my name is', width=5, indent_level=3, tabsize=4)
     # long words
-    assert_raises(ValueError,
-                  docinstance.utils.wrap, 'hello my name is', width=1, indent_level=0, tabsize=1)
-    assert_raises(ValueError,
-                  docinstance.utils.wrap, 'hello my name is', width=5, indent_level=1, tabsize=1)
+    with pytest.raises(ValueError):
+        docinstance.utils.wrap('hello my name is', width=1, indent_level=0, tabsize=1)
+    with pytest.raises(ValueError):
+        docinstance.utils.wrap('hello my name is', width=5, indent_level=1, tabsize=1)
 
 
 def test_extract_members():
@@ -59,6 +59,6 @@ def test_extract_members():
         def g(self):
             return 2
 
-        h = assert_raises
+        h = pytest
 
     assert docinstance.utils.extract_members(Test) == {'f': Test.f, 'g': Test.g}
