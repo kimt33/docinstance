@@ -47,6 +47,25 @@ def test_wrap():
         docinstance.utils.wrap('hello my name is', width=1, indent_level=0, tabsize=1)
     with pytest.raises(ValueError):
         docinstance.utils.wrap('hello my name is', width=5, indent_level=1, tabsize=1)
+    # subsequent indent
+    assert (docinstance.utils.wrap('a b c d e', width=4, indent_level=0, tabsize=4,
+                                   subsequent_indent='xxx') ==
+            ['a b', 'xxxc', 'xxxd', 'xxxe'])
+    assert (docinstance.utils.wrap('a b c d e', width=4, indent_level=1, tabsize=1,
+                                   subsequent_indent='xx') ==
+            [' a b', ' xxc', ' xxd', ' xxe'])
+    with pytest.raises(ValueError):
+        docinstance.utils.wrap('a b c d e', width=4, indent_level=0, tabsize=4,
+                               subsequent_indent='xxxx')
+
+
+def test_wrap_indent_subsequent():
+    """Test docinstance.utils.wrap_indent_subsequent."""
+    assert (docinstance.utils.wrap_indent_subsequent('a b c d e', width=4, indent_level=1,
+                                                     tabsize=3) ==
+            ['a b', '   c', '   d', '   e'])
+    with pytest.raises(ValueError):
+        docinstance.utils.wrap_indent_subsequent('a b c d e', width=4, indent_level=1, tabsize=4)
 
 
 def test_extract_members():

@@ -25,6 +25,9 @@ def wrap(text, width=100, indent_level=0, tabsize=4, **kwargs):
             - whitespaces (that are not indentations) before or after sentences are dropped
               ('drop_whitespace': True)
             - long words are not broken into smaller pieces ('break_long_words': False)
+        subsequent_indent : str
+            String that will be prepended to all lines save the first of wrapped output; also counts
+            towards each line's width.
 
     Returns
     -------
@@ -68,6 +71,38 @@ def wrap(text, width=100, indent_level=0, tabsize=4, **kwargs):
     if any(len(line) > width for line in output):
         raise ValueError('There cannot be any word (after indentation) that exceeds the maximum '
                          'width')
+    return output
+
+
+def wrap_indent_subsequent(text, width=100, indent_level=0, tabsize=4):
+    """Wrap a text where first line is not indented.
+
+    Parameters
+    ----------
+    text : str
+        Text that will be wrapped into different lines such that each line is indented and is less
+        than the given length.
+    width : int
+        Maximum number of characters allowed in each line.
+    indent_level : int
+        Number of indents (tabs) that are needed for the docstring.
+    tabsize : int
+        Number of spaces that corresponds to a tab.
+
+    Returns
+    -------
+    output : list of str
+        Text that has been wrapped to the given length and indentation where each line is an element
+        of the list.
+        If there are any newline characters present in the text, the text will first be divided
+        according to the newlines and will be wrapped aftewards.
+        Whitespace (excluding newline) at the end of each (newline-separated) line is discarded.
+        Whitespace (excluding newline) at the beginning of each (newline-separated) line is
+        discarded only if the first word cannot fit into the given line width with the whitespace.
+
+    """
+    output = wrap(text, width=width, indent_level=0, tabsize=0,
+                  subsequent_indent=' ' * tabsize * indent_level)
     return output
 
 
