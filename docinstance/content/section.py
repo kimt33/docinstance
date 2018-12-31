@@ -148,6 +148,59 @@ class DocSection(DocContent):
         """
         return self.make_numpy_docstring(width, indent_level, tabsize, include_signature=True)
 
+    def make_google_docstring(self, width, indent_level, tabsize):
+        """Return the docstring of the section in google style.
+
+        Parameters
+        ----------
+        width : int
+            Maximum number of characters allowed in a line.
+        indent_level : int
+            Number of indents (tabs) that are needed for the docstring.
+        tabsize : int
+            Number of spaces that corresponds to a tab.
+
+        Returns
+        -------
+        content_docstring : str
+            Docstring of the given content in google style.
+
+        Raises
+        ------
+        ValueError
+            If the title is too long for the given width and indentation.
+
+        """
+        output = ''
+        # title
+        if self.header != '':
+            title = wrap('{0}:'.format(self.header.title()),
+                         width=width, indent_level=indent_level, tabsize=tabsize)
+            if len(title) > 1:
+                raise ValueError('The header must fit into the given width with the indentation')
+            output += title[0]
+            output += '\n'
+        else:
+            # don't indent the contents if there is no header
+            indent_level -= 1
+        # contents
+        for paragraph in self.contents:
+            # NOTE: since the contents are checked in the initialization, we will assume that the
+            # paragraph can only be string or DocDescription
+            if isinstance(paragraph, str):
+                output += '\n'.join(wrap(paragraph, width=width, indent_level=indent_level+1,
+                                         tabsize=tabsize))
+                output += '\n\n'
+            # if isinstance(paragraph, DocContent)
+            else:
+                output += paragraph.make_google_docstring(width, indent_level+1, tabsize)
+        else:
+            # end a section with two newlines (note that the section already ends with a newline if
+            # it ends with a paragraph)
+            output += '\n' * isinstance(paragraph, DocDescription)
+
+        return output
+
 
 # FIXME: make a special class for summary
 class Summary(DocSection):

@@ -110,8 +110,10 @@ def test_make_docstring():
                                                 descs='Example.'))])
     assert (test.make_docstring(width=25, style='numpy with signature') ==
             'summary\n\nMethods\n-------\nfunc1(a, b) : str\n    Example.\n\n')
-    with pytest.raises(NotImplementedError):
-        test.make_docstring(style='google')
+    assert test.make_docstring(width=25, style='google') == ('summary\n\n'
+                                                             'Methods:\n'
+                                                             '    func1 (:obj:`str`):\n'
+                                                             '        Example.\n\n')
     with pytest.raises(NotImplementedError):
         test.make_docstring(style='rst')
 

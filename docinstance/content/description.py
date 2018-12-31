@@ -1,5 +1,5 @@
 """Class for representing a description of objects/errors in the docstring."""
-from docinstance.utils import wrap
+from docinstance.utils import wrap, wrap_indent_subsequent
 from docinstance.content.base import DocContent
 from docinstance.content.equation import DocEquation
 
@@ -214,3 +214,61 @@ class DocDescription(DocContent):
         new_name = '{0}{1}'.format(self.name, self.signature)
         new_description = self.__class__(new_name, '', self.types, self.descs)
         return new_description.make_numpy_docstring(width, indent_level, tabsize)
+
+    def make_google_docstring(self, width, indent_level, tabsize):
+        """Return the docstring of the content in google style.
+
+        Parameters
+        ----------
+        width : int
+            Maximum number of characters allowed in a line.
+        indent_level : int
+            Number of indents (tabs) that are needed for the docstring.
+        tabsize : int
+            Number of spaces that corresponds to a tab.
+
+        Returns
+        -------
+        content_docstring : str
+            Docstring of the given content in google style.
+
+        Notes
+        -----
+        The signature of a function is not included in the google docstring.
+
+        """
+        output = ''
+        first_block = []
+        # var_name:
+        if len(self.types) == 0:
+            first_block = wrap('{0}:'.format(self.name),
+                               width=width, indent_level=indent_level, tabsize=tabsize)
+        # var_name (type1, type2):
+        else:
+            # FIXME: optional parameters need to be specified within google doc
+            types_str = [i if isinstance(i, str) else ':obj:`{0}`'.format(j)
+                         for i, j in zip(self.types, self.types_str)]
+            text = '{0} ({1}):'.format(self.name, ', '.join(types_str))
+            # if there are too many types to fit into one line, the remaining lines should be
+            # indented to line up after "var_name ("
+            first_block = [' ' * indent_level * tabsize + line for line in
+                           wrap_indent_subsequent(text, width=width - indent_level*tabsize,
+                                                  indent_level=1,
+                                                  tabsize=len('{0} ('.format(self.name)))]
+        # add descriptions
+        if len(self.descs) != 0:
+            output += '\n'.join(first_block[:-1])
+            if len(first_block) != 1:
+                output += '\n'
+            first_desc = wrap_indent_subsequent(first_block[-1] + ' ' + self.descs[0], width=width,
+                                                indent_level=indent_level+1, tabsize=tabsize)
+            output += '\n'.join(first_desc)
+            output += '\n'
+            for desc in self.descs[1:]:
+                output += '\n'.join(wrap(desc, width=width, indent_level=indent_level+1,
+                                         tabsize=tabsize))
+                output += '\n'
+        else:
+            output += '\n'.join(first_block)
+            output += '\n'
+        return output

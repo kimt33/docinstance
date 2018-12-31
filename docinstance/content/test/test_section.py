@@ -74,10 +74,45 @@ def test_make_numpy_docstring_signature():
 
 def test_make_google_docstring():
     """Test DocSection.make_google_docstring."""
+    with pytest.raises(ValueError):
+        test = DocSection('quite long header name', '')
+        test.make_google_docstring(10, 0, 4)
+    # no header
+    test = DocSection('', 'Some text.')
+    assert test.make_google_docstring(10, 0, 4) == ('Some text.\n\n')
+    # one docdescription
     test = DocSection('header name',
                       DocDescription('var_name', signature='(a, b)', types=str, descs='Example.'))
-    with pytest.raises(NotImplementedError):
-        test.make_google_docstring(20, 0, 4)
+    assert test.make_google_docstring(35, 0, 4) == ('Header Name:\n'
+                                                    '    var_name (:obj:`str`): Example.\n\n')
+    # multiple docdescription
+    test = DocSection('header name',
+                      [DocDescription('var1', signature='(a, b)', types=str, descs='Example1.'),
+                       DocDescription('var2', signature='(c)', types='int', descs='Example2.'),])
+    assert test.make_google_docstring(35, 0, 4) == ('Header Name:\n'
+                                                    '    var1 (:obj:`str`): Example1.\n'
+                                                    '    var2 (int): Example2.\n\n')
+    # one string
+    test = DocSection('header name', 'Some text.')
+    assert test.make_google_docstring(14, 0, 4) == ('Header Name:\n'
+                                                    '    Some text.\n\n')
+    assert test.make_google_docstring(13, 0, 4) == ('Header Name:\n'
+                                                    '    Some\n'
+                                                    '    text.\n\n')
+    # multiple string
+    test = DocSection('header name', ['Some text.', 'Another text.'])
+    assert test.make_google_docstring(17, 0, 4) == ('Header Name:\n'
+                                                    '    Some text.\n\n'
+                                                    '    Another text.\n\n')
+    assert test.make_google_docstring(14, 0, 4) == ('Header Name:\n'
+                                                    '    Some text.\n\n'
+                                                    '    Another\n'
+                                                    '    text.\n\n')
+    assert test.make_google_docstring(13, 0, 4) == ('Header Name:\n'
+                                                    '    Some\n'
+                                                    '    text.\n\n'
+                                                    '    Another\n'
+                                                    '    text.\n\n')
 
 
 def test_make_rst_docstring():
