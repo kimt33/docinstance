@@ -1,9 +1,10 @@
 """Test docinstance.wrapper."""
 import importlib
 import os
+import sys
 import pytest
 from docinstance.wrapper import (kwarg_wrapper, docstring, docstring_recursive,
-                                 docstring_current_module, docstring_modify_import)
+                                 docstring_current_module)
 from docinstance.docstring import Docstring
 from docinstance.content.section import DocSection
 from docinstance.content.description import DocDescription
@@ -152,7 +153,7 @@ def test_wrapper_docstring_on_class():
         _docinstance = docinstance1
 
         def f(self):
-            """Test function."""
+            """Some docstring."""
             pass
         f._docinstance = docinstance2
 
@@ -162,7 +163,7 @@ def test_wrapper_docstring_on_class():
                             'x : int\n'
                             '    Something.\n\n')
     assert Test._docinstance == docinstance1
-    assert Test.f.__doc__ is None
+    assert Test.f.__doc__ == 'Some docstring.'
     assert Test.f._docinstance == docinstance2
 
     # w/ indentation
@@ -316,13 +317,47 @@ supplementary_docstring_current_module._docinstance = Docstring([
 test_docstring_current_module.f = supplementary_docstring_current_module
 
 
-def test_docstring_modify_import():
+def test_docstring_modify_import(tmp_path):
     """Test docinstance.wrapper.docstring_modify_import on module `dummy`."""
     assert (not hasattr(importlib._bootstrap_external.SourceFileLoader.exec_module,
                         'special_cases'))
-    docstring_modify_import()
+    # create temporary directory
+    tmp_dir = tmp_path / "test"
+    tmp_dir.mkdir()
+    # create python file that calls docstring_modify_import
+    path1 = tmp_dir / "dummy1.py"
+    path1.write_text("from docinstance.wrapper import docstring_modify_import\n"
+                     "docstring_modify_import()")
+    # create another python file with docstrings
+    path2 = tmp_dir / "dummy2.py"
+    path2.write_text(
+        '''"""This will be replaced."""
+from docinstance.docstring import Docstring
+from docinstance.content.section import DocSection
+from docinstance.content.description import DocDescription
 
-    import docinstance.test.dummy as test
+_docinstance = Docstring([
+    'Dummy module for testing docinstance.wrapper.docstring_modify_import.'
+])
+
+
+class DummyClass:
+    """This too will be replaced."""
+
+    _docinstance = Docstring([
+        'Class for testing.',
+        DocSection('attributes', DocDescription('x', types=str, descs='Example.'))
+    ])
+        ''')
+    # create yet another python file with docstring_modify_import
+    path3 = tmp_dir / "dummy3.py"
+    path3.write_text("from docinstance.wrapper import docstring_modify_import\n"
+                     "docstring_modify_import()")
+
+    # check that dummy2 is decorated
+    sys.path.append(str(tmp_dir))
+    import dummy1
+    import dummy2 as test
     assert (test.__doc__ ==
             'Dummy module for testing docinstance.wrapper.docstring_modify_import.')
     assert (test.DummyClass.__doc__ ==
@@ -333,15 +368,17 @@ def test_docstring_modify_import():
             '        Example.\n\n'
             '    ')
     assert (importlib._bootstrap_external.SourceFileLoader.exec_module.special_cases
-            == set([os.path.dirname(__file__)]))
+            == set([os.path.dirname(dummy1.__file__)]))
 
     # check that multiple function calls does not change anything
-    docstring_modify_import()
+    import dummy3
     assert (importlib._bootstrap_external.SourceFileLoader.exec_module.special_cases
-            == set([os.path.dirname(__file__)]))
+            == set([os.path.dirname(dummy3.__file__)]))
 
     # import package outside current directory
     import docinstance.utils
     # reload module because it has already been loaded via docinstance.wrapper
     importlib.reload(docinstance.utils)
-    # FIXME: check that the objects within docinstance.utils has not been touched by wrapper.
+    # check that the objects within docinstance.utils has not been touched by wrapper.
+    with pytest.raises(AttributeError):
+        docinstance.utils._docinstance
