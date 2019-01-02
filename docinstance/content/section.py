@@ -1,5 +1,5 @@
 """Class for representing a section in the docstring."""
-from docinstance.utils import wrap
+from docinstance.utils import wrap, wrap_indent_subsequent
 from docinstance.content.base import DocContent
 from docinstance.content.description import DocDescription
 
@@ -197,6 +197,72 @@ class DocSection(DocContent):
         else:
             # end a section with two newlines (note that the section already ends with a newline if
             # it ends with a paragraph)
+            output += '\n' * isinstance(paragraph, DocDescription)
+
+        return output
+
+    def make_rst_docstring(self, width, indent_level, tabsize):
+        """Return the docstring in sphinx's rst format.
+
+        Parameters
+        ----------
+        width : int
+            Maximum number of characters allowed in a line.
+        indent_level : int
+            Number of indents (tabs) that are needed for the docstring.
+        tabsize : int
+            Number of spaces that corresponds to a tab.
+
+        Returns
+        -------
+        content_docstring : str
+            Docstring of the given content in sphinx's rst style.
+
+        """
+        output = ''
+        header = ''
+        special_headers = {'see also': 'seealso', 'warnings': 'warning', 'warning': 'warning',
+                           'notes': 'note', 'note': 'note', 'to do': 'todo', 'todo': 'todo'}
+
+        if self.header.lower() in special_headers:
+            header = '.. {0}::'.format(special_headers[self.header.lower()])
+        elif self.header != '':
+            output += ':{0}:\n\n'.format(self.header.title())
+
+        for i, paragraph in enumerate(self.contents):
+            # first content must be treated with care for special headers
+            if i == 0 and self.header.lower() in special_headers:
+                # str
+                if isinstance(paragraph, str):
+                    text = '{0} {1}'.format(header, paragraph)
+                    # FIXME: following can probably be replaced with a better wrapping function
+                    first_content = [' ' * indent_level * tabsize + line for line in
+                                     wrap_indent_subsequent(text,
+                                                            width=width - indent_level*tabsize,
+                                                            indent_level=indent_level+1,
+                                                            tabsize=tabsize)]
+                    output += '\n'.join(first_content)
+                    output += '\n'
+                # DocContent
+                else:
+                    output += header
+                    output += '\n'
+                    output += paragraph.make_rst_docstring(width=width,
+                                                           indent_level=indent_level+1,
+                                                           tabsize=tabsize)
+                # indent all susequent content
+                indent_level += 1
+            elif isinstance(paragraph, str):
+                output += '\n'.join(wrap(paragraph, width=width, indent_level=indent_level,
+                                         tabsize=tabsize))
+                # NOTE: the second newline may cause problems (because the field might not
+                # recognize text that is more than one newline away)
+                output += '\n\n'
+            else:
+                output += paragraph.make_rst_docstring(width, indent_level, tabsize)
+        else:
+            # end a section with two newlines (note that the section already ends with a newline
+            # if it ends with a paragraph)
             output += '\n' * isinstance(paragraph, DocDescription)
 
         return output

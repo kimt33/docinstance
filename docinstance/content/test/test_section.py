@@ -117,10 +117,48 @@ def test_make_google_docstring():
 
 def test_make_rst_docstring():
     """Test DocSection.make_rst_docstring."""
+    # no header
+    test = DocSection('', 'Some text.')
+    assert test.make_rst_docstring(10, 0, 4) == ('Some text.\n\n')
+    # normal header, one docdescription
     test = DocSection('header name',
                       DocDescription('var_name', signature='(a, b)', types=str, descs='Example.'))
-    with pytest.raises(NotImplementedError):
-        test.make_rst_docstring(20, 0, 4)
+    assert test.make_rst_docstring(35, 0, 4) == (':Header Name:\n\n'
+                                                 ':param var_name: Example.\n'
+                                                 ':type var_name: :obj:`str`\n\n')
+    # normal header, multiple docdescription
+    test = DocSection('header name',
+                      [DocDescription('var1', signature='(a, b)', types=str, descs='Example1.'),
+                       DocDescription('var2', signature='(c)', types='int', descs='Example2.')])
+    assert test.make_rst_docstring(35, 0, 4) == (':Header Name:\n\n'
+                                                 ':param var1: Example1.\n'
+                                                 ':type var1: :obj:`str`\n'
+                                                 ':param var2: Example2.\n'
+                                                 ':type var2: int\n\n')
+    # normal header, one string
+    test = DocSection('header name', 'Some text.')
+    assert test.make_rst_docstring(13, 0, 4) == (':Header Name:\n\n'
+                                                 'Some text.\n\n')
+    # normal header, multiple string
+    test = DocSection('header name', ['Some text.', 'Another text.'])
+    assert test.make_rst_docstring(13, 0, 4) == (':Header Name:\n\n'
+                                                 'Some text.\n\n'
+                                                 'Another text.\n\n')
+
+    # special header, doc description
+    test = DocSection('see also',
+                      [DocDescription('var1', signature='(a, b)', types=str, descs='Example1.'),
+                       DocDescription('var2', signature='(c)', types='int', descs='Example2.')])
+    assert test.make_rst_docstring(35, 0, 4) == ('.. seealso::\n'
+                                                 '    :param var1: Example1.\n'
+                                                 '    :type var1: :obj:`str`\n'
+                                                 '    :param var2: Example2.\n'
+                                                 '    :type var2: int\n\n')
+    # special header, string
+    test = DocSection('to do', ['Example 1, something.', 'Example 2.'])
+    assert test.make_rst_docstring(20, 0, 4) == ('.. todo:: Example 1,\n'
+                                                 '    something.\n'
+                                                 '    Example 2.\n\n')
 
 
 def test_section_summary_init():

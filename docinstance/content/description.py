@@ -251,6 +251,7 @@ class DocDescription(DocContent):
             text = '{0} ({1}):'.format(self.name, ', '.join(types_str))
             # if there are too many types to fit into one line, the remaining lines should be
             # indented to line up after "var_name ("
+            # FIXME: following can probably be replaced with a better wrapping function
             first_block = [' ' * indent_level * tabsize + line for line in
                            wrap_indent_subsequent(text, width=width - indent_level*tabsize,
                                                   indent_level=1,
@@ -260,6 +261,7 @@ class DocDescription(DocContent):
             output += '\n'.join(first_block[:-1])
             if len(first_block) != 1:
                 output += '\n'
+            # FIXME: following can probably be replaced with a better wrapping function
             first_desc = wrap_indent_subsequent(first_block[-1] + ' ' + self.descs[0], width=width,
                                                 indent_level=indent_level+1, tabsize=tabsize)
             output += '\n'.join(first_desc)
@@ -270,5 +272,62 @@ class DocDescription(DocContent):
                 output += '\n'
         else:
             output += '\n'.join(first_block)
+            output += '\n'
+        return output
+
+    def make_rst_docstring(self, width, indent_level, tabsize):
+        """Return the docstring in sphinx's rst format.
+
+        Parameters
+        ----------
+        width : int
+            Maximum number of characters allowed in a line.
+        indent_level : int
+            Number of indents (tabs) that are needed for the docstring.
+        tabsize : int
+            Number of spaces that corresponds to a tab.
+
+        Returns
+        -------
+        content_docstring : str
+            Docstring of the given content in sphinx's rst style.
+
+        Raises
+        ------
+        ValueError
+            If the parameter name is too long to fit within the given width and indent.
+
+        """
+        output = ''
+        if self.descs:
+            text = ':param {0}: {1}'.format(self.name, self.descs[0])
+            # FIXME: following can probably be replaced with a better wrapping function
+            block = [' ' * indent_level * tabsize + line for line in
+                     wrap_indent_subsequent(text, width=width - indent_level*tabsize,
+                                            indent_level=1, tabsize=tabsize)]
+            output += '\n'.join(block)
+            output += '\n'
+            if len(self.descs) > 1:
+                for desc in self.descs[1:]:
+                    output += '\n'.join(wrap(desc, width=width, indent_level=indent_level+1,
+                                             tabsize=tabsize))
+                    output += '\n'
+        else:
+            block = wrap(':param {0}:'.format(self.name), width=width, indent_level=indent_level,
+                         tabsize=tabsize)
+            if len(block) > 1:
+                raise ValueError('Parameter name is too long to fit within the given line width and'
+                                 ' indent level.')
+            output += block[0]
+            output += '\n'
+
+        types_str = [i if isinstance(i, str) else ':obj:`{0}`'.format(j)
+                     for i, j in zip(self.types, self.types_str)]
+        if self.types:
+            text = ':type {0}: {1}'.format(self.name, ', '.join(types_str))
+            block = [' ' * indent_level * tabsize + line for line in
+                     wrap_indent_subsequent(text, width=width - indent_level*tabsize,
+                                            indent_level=1, tabsize=tabsize)]
+            output += '\n'.join(block)
             output += '\n'
         return output

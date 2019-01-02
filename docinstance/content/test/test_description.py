@@ -167,3 +167,35 @@ def test_make_google_docstring():
                                                     '  description 1\n'
                                                     '  description 2\n'
                                                     '  description 3\n')
+
+
+def test_make_rst_docstring():
+    """Test DocDescription.make_rst_docstring."""
+    # only name
+    test = DocDescription('var_name')
+    assert test.make_rst_docstring(16, 0, 1) == ':param var_name:\n'
+    assert test.make_rst_docstring(17, 1, 1) == ' :param var_name:\n'
+    with pytest.raises(ValueError):
+        test.make_rst_docstring(15, 0, 4)
+    # name + desc
+    test = DocDescription('var_name', descs='hello')
+    assert test.make_rst_docstring(22, 0, 1) == ':param var_name: hello\n'
+    assert test.make_rst_docstring(21, 0, 1) == (':param var_name:\n'
+                                                 ' hello\n')
+    assert test.make_rst_docstring(21, 0, 4) == (':param var_name:\n'
+                                                 '    hello\n')
+    test = DocDescription('var_name', descs=['hello my name is', 'Example 2.'])
+    assert test.make_rst_docstring(25, 0, 4) == (':param var_name: hello my\n'
+                                                 '    name is\n'
+                                                 '    Example 2.\n')
+    # name + type
+    test = DocDescription('var_name', types=['str', int])
+    assert test.make_rst_docstring(20, 0, 2) == (':param var_name:\n'
+                                                 ':type var_name: str,\n'
+                                                 '  :obj:`int`\n')
+    # name + desc + type
+    test = DocDescription('var_name', types=['str', int], descs=['Example 1.', 'Example 2.'])
+    assert test.make_rst_docstring(27, 0, 4) == (':param var_name: Example 1.\n'
+                                                 '    Example 2.\n'
+                                                 ':type var_name: str,\n'
+                                                 '    :obj:`int`\n')

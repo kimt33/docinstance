@@ -103,19 +103,23 @@ def test_make_docstring():
     assert (test.make_docstring(width=24) ==
             '\nvery very long summary\n\nextended summary\n\n'
             'Parameters\n----------\nvar1 : str\n    Example.\n\n')
-    # other styles
+    # numpy with signature
     test = Docstring(['summary',
                       DocSection('methods',
                                  DocDescription('func1', signature='(a, b)', types=str,
                                                 descs='Example.'))])
     assert (test.make_docstring(width=25, style='numpy with signature') ==
             'summary\n\nMethods\n-------\nfunc1(a, b) : str\n    Example.\n\n')
+    # google
     assert test.make_docstring(width=25, style='google') == ('summary\n\n'
                                                              'Methods:\n'
                                                              '    func1 (:obj:`str`):\n'
                                                              '        Example.\n\n')
-    with pytest.raises(NotImplementedError):
-        test.make_docstring(style='rst')
+    # rst
+    assert test.make_docstring(width=25, style='rst') == ('summary\n\n'
+                                                          ':Methods:\n\n'
+                                                          ':param func1: Example.\n'
+                                                          ':type func1: :obj:`str`\n\n')
 
 
 def test_check_section_order():
