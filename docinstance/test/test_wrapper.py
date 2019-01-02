@@ -367,13 +367,13 @@ class DummyClass:
             '    x : str\n'
             '        Example.\n\n'
             '    ')
-    assert (importlib._bootstrap_external.SourceFileLoader.exec_module.special_cases
-            == set([os.path.dirname(dummy1.__file__)]))
+    assert (importlib._bootstrap_external.SourceFileLoader.exec_module.special_cases ==
+            set([os.path.dirname(dummy1.__file__)]))
 
     # check that multiple function calls does not change anything
     import dummy3
-    assert (importlib._bootstrap_external.SourceFileLoader.exec_module.special_cases
-            == set([os.path.dirname(dummy3.__file__)]))
+    assert (importlib._bootstrap_external.SourceFileLoader.exec_module.special_cases ==
+            set([os.path.dirname(dummy3.__file__)]))
 
     # import package outside current directory
     import docinstance.utils
