@@ -285,36 +285,35 @@ def test_wrapper_docstring_recursive_on_class():
 
 def test_docstring_current_module():
     """Test docinstance.wrapper.docstring_current_module on the current module."""
+    global test_docstring_current_module
+    test_docstring_current_module._docinstance = Docstring([
+        'Test docinstance.wrapper.docstring_current_module on the current module.',
+        'Did it work?'
+    ])
+
+    def supplementary_docstring_current_module():
+        """To be used to test docstring_current_module in test_docstring_current_module."""
+        pass
+
+    supplementary_docstring_current_module._docinstance = Docstring([
+        'Some docstring.',
+        DocSection('parameters', DocDescription('x', types=int, descs='Example.'))
+    ])
+    test_docstring_current_module.f = supplementary_docstring_current_module
+
     docstring_current_module()
     assert (test_docstring_current_module.__doc__ ==
             'Test docinstance.wrapper.docstring_current_module on the current module.\n\n'
             '    Did it work?\n\n'
             '    ')
+
     assert (test_docstring_current_module.f.__doc__ ==
             'Some docstring.\n\n'
-            '    Parameters\n'
-            '    ----------\n'
-            '    x : int\n'
-            '        Example.\n\n'
-            '    ')
-
-
-test_docstring_current_module._docinstance = Docstring([
-    'Test docinstance.wrapper.docstring_current_module on the current module.',
-    'Did it work?'
-])
-
-
-def supplementary_docstring_current_module():  # pragma: no cover
-    """To be used to test docstring_current_module in test_docstring_current_module."""
-    pass
-
-
-supplementary_docstring_current_module._docinstance = Docstring([
-    'Some docstring.',
-    DocSection('parameters', DocDescription('x', types=int, descs='Example.'))
-])
-test_docstring_current_module.f = supplementary_docstring_current_module
+            '        Parameters\n'
+            '        ----------\n'
+            '        x : int\n'
+            '            Example.\n\n'
+            '        ')
 
 
 def test_docstring_modify_import(tmp_path):
