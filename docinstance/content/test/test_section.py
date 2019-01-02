@@ -88,7 +88,7 @@ def test_make_google_docstring():
     # multiple docdescription
     test = DocSection('header name',
                       [DocDescription('var1', signature='(a, b)', types=str, descs='Example1.'),
-                       DocDescription('var2', signature='(c)', types='int', descs='Example2.'),])
+                       DocDescription('var2', signature='(c)', types='int', descs='Example2.')])
     assert test.make_google_docstring(35, 0, 4) == ('Header Name:\n'
                                                     '    var1 (:obj:`str`): Example1.\n'
                                                     '    var2 (int): Example2.\n\n')
