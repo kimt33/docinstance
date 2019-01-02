@@ -65,6 +65,8 @@ class DocSection(DocContent):
                             "DocDescription).")
         self.contents = list(contents)
 
+    # pylint: disable=W0221
+    # the extra argument is used in the make_numpy_docstring_signature
     def make_numpy_docstring(self, width, indent_level, tabsize, include_signature=False):
         """Return the docstring in numpy style.
 
@@ -115,6 +117,8 @@ class DocSection(DocContent):
                 output += paragraph.make_numpy_docstring_signature(width, indent_level, tabsize)
             else:
                 output += paragraph.make_numpy_docstring(width, indent_level, tabsize)
+        # pylint: disable=W0120
+        # following block clause should always be executed
         else:
             # end a section with two newlines (note that the section already ends with a newline if
             # it ends with a paragraph)
@@ -194,6 +198,8 @@ class DocSection(DocContent):
             # if isinstance(paragraph, DocContent)
             else:
                 output += paragraph.make_google_docstring(width, indent_level+1, tabsize)
+        # pylint: disable=W0120
+        # following block clause should always be executed
         else:
             # end a section with two newlines (note that the section already ends with a newline if
             # it ends with a paragraph)
@@ -260,6 +266,8 @@ class DocSection(DocContent):
                 output += '\n\n'
             else:
                 output += paragraph.make_rst_docstring(width, indent_level, tabsize)
+        # pylint: disable=W0120
+        # following block clause should always be executed
         else:
             # end a section with two newlines (note that the section already ends with a newline
             # if it ends with a paragraph)
@@ -359,11 +367,12 @@ class Summary(DocSection):
         return output
 
 
-sections_headers = {'ExtendedSummary': '', 'Parameters': None, 'Attributes': None,
-                    'Methods': None, 'Returns': None, 'Yields': None,
-                    'OtherParameters': 'other parameters', 'Raises': None, 'Warns': None,
-                    'Warnings': None, 'SeeAlso': 'see also', 'Notes': None, 'References': None,
-                    'Examples': None}
+# pylint: disable=C0103
+dict_classname_headers = {'ExtendedSummary': '', 'Parameters': None, 'Attributes': None,
+                          'Methods': None, 'Returns': None, 'Yields': None,
+                          'OtherParameters': 'other parameters', 'Raises': None, 'Warns': None,
+                          'Warnings': None, 'SeeAlso': 'see also', 'Notes': None,
+                          'References': None, 'Examples': None}
 
 
 # factory for init
@@ -416,11 +425,12 @@ def make_init(header):
 
 
 # declare classes from string
-for class_name, header in sections_headers.items():
+for class_name, section_header in dict_classname_headers.items():
     # if header is None, then it is assumed to be the same as the clas sname
-    if header is None:
-        header = class_name.lower()
+    if section_header is None:
+        section_header = class_name.lower()
 
     # globals is the dictionary of the current module for the symbols
     # types is used to instantiate a class (because all classes are instances of type)
-    globals()[class_name] = type(class_name, (DocSection,), {'__init__': make_init(header)})
+    globals()[class_name] = type(class_name,
+                                 (DocSection,), {'__init__': make_init(section_header)})

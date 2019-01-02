@@ -48,7 +48,7 @@ class Docstring:
             raise TypeError('Sections of the docstring must be provided as a string, list/tuple of '
                             'strings, or list/tuple of DocContent instances.')
         # NOTE: should the empty sections be allowed?
-        elif len(sections) == 0:
+        elif not sections:
             raise ValueError('At least one section must be provided.')
         self.sections = [section if isinstance(section, DocSection) else DocSection('', section)
                          for section in sections]
@@ -58,6 +58,7 @@ class Docstring:
                              "'google', 'rst'.")
         self.default_style = default_style
 
+    # pylint: disable=R0912
     def make_docstring(self, width=100, indent_level=0, tabsize=4, style=None):
         """Return the docstring in the given style.
 

@@ -150,7 +150,7 @@ class DocDescription(DocContent):
         # var_name
         # OR
         # error_name
-        if len(self.types) == 0:
+        if not self.types:
             # NOTE: error is raised by wrap if the name is too long to fit in the given width and
             #       indentation
             output += wrap(self.name, width=width, indent_level=indent_level, tabsize=tabsize)[0]
@@ -240,7 +240,7 @@ class DocDescription(DocContent):
         output = ''
         first_block = []
         # var_name:
-        if len(self.types) == 0:
+        if not self.types:
             first_block = wrap('{0}:'.format(self.name),
                                width=width, indent_level=indent_level, tabsize=tabsize)
         # var_name (type1, type2):
@@ -257,7 +257,7 @@ class DocDescription(DocContent):
                                                   indent_level=1,
                                                   tabsize=len('{0} ('.format(self.name)))]
         # add descriptions
-        if len(self.descs) != 0:
+        if self.descs:
             output += '\n'.join(first_block[:-1])
             if len(first_block) != 1:
                 output += '\n'

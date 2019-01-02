@@ -1,6 +1,8 @@
+"""Installation script for docinstance module."""
 import setuptools
 
 with open("README.md", "r") as fh:
+    # pylint: disable=C0103
     long_description = fh.read()
 
 setuptools.setup(

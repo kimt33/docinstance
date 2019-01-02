@@ -1,3 +1,4 @@
+"""Utility functions for handling strings and attributes of an object."""
 import textwrap
 import inspect
 import os

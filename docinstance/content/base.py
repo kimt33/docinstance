@@ -2,6 +2,27 @@
 
 
 class DocContent:
+    """Base class for all content of a docstring.
+
+    Any special construct that goes inside a docstring (i.e. not a string) should be a child of this
+    class.
+
+    Methods
+    -------
+    __init__(self)
+        Initialize.
+    __eq__(self, other)
+        Return True if other is DocContent instance with the same contents. False otherwise.
+    __ne__(self, other)
+        Return False if other is DocContent instance with the same contents. True otherwise.
+    make_numpy_docstring(self, width, indent_level, tabsize)
+        Return the docstring of the content in numpy style.
+    make_google_docstring(self, width, indent_level, tabsize)
+        Return the docstring of the content in google style.
+    make_rst_docstring(self, width, indent_level, tabsize)
+        Return the docstring of the content in rst style.
+
+    """
     def __init__(self):
         """Initialize.
 

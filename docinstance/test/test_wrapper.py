@@ -13,10 +13,12 @@ def test_kwarg_wrapper():
     """Test docinstance.wrapper.kwarg_wrapper."""
     @kwarg_wrapper
     def test(func, x=1):
+        """Test function."""
         func.x = x
         return func
 
     def f():  # pragma: no cover
+        """Test function."""
         pass
 
     with pytest.raises(AttributeError):
@@ -28,11 +30,13 @@ def test_kwarg_wrapper():
 
     @test
     def f():  # pragma: no cover
+        """Test function."""
         pass
     assert f.x == 1
 
     @test(x=2)
     def f():  # pragma: no cover
+        """Test function."""
         pass
     assert f.x == 2
 
@@ -70,6 +74,7 @@ def test_wrapper_docstring_on_func():
     ])
 
     def test():  # pragma: no cover
+        """Test function."""
         pass
 
     # FIXME: this is terrible because contents inside function is ignored when declaring a function
@@ -143,9 +148,11 @@ def test_wrapper_docstring_on_class():
     # w/o indentation
     @docstring
     class Test:  # pragma: no cover
+        """Test class."""
         _docinstance = docinstance1
 
         def f(self):
+            """Test function."""
             pass
         f._docinstance = docinstance2
 
@@ -161,9 +168,11 @@ def test_wrapper_docstring_on_class():
     # w/ indentation
     @docstring(indent_level=1)
     class Test:  # pragma: no cover
+        """Test class."""
         _docinstance = docinstance1
 
         def f(self):
+            """Test function."""
             pass
         f._docinstance = docinstance2
 
@@ -226,9 +235,11 @@ def test_wrapper_docstring_recursive_on_class():
     # w/o indentation
     @docstring_recursive
     class Test:  # pragma: no cover
+        """Test class."""
         _docinstance = docinstance1
 
         def f(self):
+            """Test function."""
             pass
         f._docinstance = docinstance2
 
@@ -248,9 +259,11 @@ def test_wrapper_docstring_recursive_on_class():
     # w indentation
     @docstring_recursive(indent_level=2)
     class Test:  # pragma: no cover
+        """Test class."""
         _docinstance = docinstance1
 
         def f(self):
+            """Test function."""
             pass
         f._docinstance = docinstance2
 

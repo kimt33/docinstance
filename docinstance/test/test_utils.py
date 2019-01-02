@@ -1,3 +1,4 @@
+"""Test docinstance.utils."""
 import pytest
 import docinstance.utils
 
@@ -20,8 +21,8 @@ def test_wrap():
     # white spaces
     assert (docinstance.utils.wrap('    hello', width=9, indent_level=0, tabsize=4)
             == ['    hello'])
-    assert (docinstance.utils.wrap('    hello', width=8, indent_level=0, tabsize=4) == ['hello'])
-    assert (docinstance.utils.wrap('hello ', width=8, indent_level=0, tabsize=4) == ['hello'])
+    assert docinstance.utils.wrap('    hello', width=8, indent_level=0, tabsize=4) == ['hello']
+    assert docinstance.utils.wrap('hello ', width=8, indent_level=0, tabsize=4) == ['hello']
     assert (docinstance.utils.wrap('    hello my   ', width=9, indent_level=0, tabsize=4)
             == ['    hello', 'my'])
     assert (docinstance.utils.wrap('    hello   my   name   is    ', width=8, indent_level=0,
@@ -71,12 +72,15 @@ def test_wrap_indent_subsequent():
 def test_extract_members():
     """Test docinstance.utils.extract_members."""
     class Test:  # pragma: no cover
+        """Test class."""
         @property
         def f(self):
-            return 1
+            """Test property."""
+            return (self, 1)
 
         def g(self):
-            return 2
+            """Test function."""
+            return (self, 2)
 
         h = pytest
 

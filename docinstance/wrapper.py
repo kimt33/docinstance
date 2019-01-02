@@ -1,8 +1,9 @@
+"""Functions for wrapping a python object to utilize the docinstance object."""
 import inspect
 import os
 from functools import wraps
-from docinstance.utils import extract_members
 import importlib
+from docinstance.utils import extract_members
 
 
 def kwarg_wrapper(wrapper):
@@ -24,17 +25,16 @@ def kwarg_wrapper(wrapper):
         then it simply needs to return the wrapped value.
 
         """
-        if obj is None and len(kwargs) > 0:
+        if obj is None and kwargs:
             # Since no object is provided, we need to turn the wrapper back into a form so that it
             # will automatically pass in the object (i.e. turn it into a function) after overwriting
             # the keyword arguments
             return lambda orig_obj: wrapper(orig_obj, **kwargs)
-        else:
-            # Here, the object is provided OR keyword argument is not provided.
-            # If the object is provided, then the wrapper can be executed.
-            # If the object is not provided and keyword argument is not provided, then an error will
-            # be raised.
-            return wrapper(obj, **kwargs)
+        # Here, the object is provided OR keyword argument is not provided.
+        # If the object is provided, then the wrapper can be executed.
+        # If the object is not provided and keyword argument is not provided, then an error will
+        # be raised.
+        return wrapper(obj, **kwargs)
 
     return new_wrapper
 
@@ -70,6 +70,7 @@ def docstring(obj, width=100, indent_level=0, tabsize=4):
     if not hasattr(obj, '_docinstance'):
         return obj
     # generate new docstring from docinstance
+    # pylint: disable=W0212
     docinst = obj._docinstance
     new_doc = docinst.make_docstring(width=width, indent_level=indent_level, tabsize=tabsize)
     # TODO: following can be used to check that the parsed docstring matches with the original
@@ -124,7 +125,7 @@ def docstring_recursive(obj, width=100, indent_level=0, tabsize=4):
     # wrap self
     obj = docstring(obj, width=width, indent_level=indent_level, tabsize=tabsize)
     # wrap members
-    for name, member in extract_members(obj).items():
+    for member in extract_members(obj).values():
         # recurse for all members of member
         docstring_recursive(member, width=width, indent_level=indent_level+1, tabsize=tabsize)
 
@@ -215,6 +216,7 @@ def docstring_modify_import(width=100, tabsize=4):
         old_import.special_cases.add(parentdir)
 
         def new_import(*args, **kwargs):
+            """New import function that has been wrapped."""
             old_import(*args, **kwargs)
 
             # NOTE: the arguments to the function
@@ -232,6 +234,8 @@ def docstring_modify_import(width=100, tabsize=4):
         return new_import
 
     # open the box
+    # pylint: disable=W0212
     importlib._bootstrap_external.SourceFileLoader.exec_module = pandora_box(
+        # pylint: disable=W0212
         importlib._bootstrap_external.SourceFileLoader.exec_module
     )

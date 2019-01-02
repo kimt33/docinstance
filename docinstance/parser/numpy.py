@@ -11,6 +11,7 @@ from docinstance.content.section import (DocSection, Summary, ExtendedSummary, P
 from docinstance.content.equation import DocEquation
 
 
+# pylint: disable=R0912,R0914,R0915
 def parse_numpy(docstring, contains_quotes=False):
     """Parse a docstring in numpy format into a Docstring instance.
 

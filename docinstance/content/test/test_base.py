@@ -26,6 +26,7 @@ def test_base_eq():
     assert not test1 == test2
 
     class Empty:
+        """Empty class."""
         pass
     test2 = Empty()
     test2.x = 1
@@ -45,6 +46,7 @@ def test_base_ne():
     assert test1 != test2
 
     class Empty:
+        """Empty class."""
         pass
     test2 = Empty()
     test2.x = 1

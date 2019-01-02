@@ -22,7 +22,6 @@ def test_compare_docinstances():
                                               DocDescription('name2', '(c, d)', int,
                                                              ['desc3', DocEquation('desc4')])])])
     assert doc1 != 1
-    assert 1 != doc1
     assert Docstring(['a', 'b']) != Docstring(['a', 'b', 'c'])
     assert Docstring(['a', 'b']) != Docstring(['a', DocSection('x', 'b')])
     assert Docstring(DocSection('a', 'b')) != Docstring(DocSection('a', ['b', 'c']))
