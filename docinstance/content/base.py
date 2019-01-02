@@ -23,6 +23,7 @@ class DocContent:
         Return the docstring of the content in rst style.
 
     """
+
     def __init__(self):
         """Initialize.
 

@@ -108,7 +108,7 @@ def wrap_indent_subsequent(text, width=100, indent_level=0, tabsize=4):
 
 
 def extract_members(module):
-    """Extracts all members of a module that are defined in the same file.
+    """Extract all members of a module that are defined in the same file.
 
     Parameters
     ----------

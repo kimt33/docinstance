@@ -21,6 +21,7 @@ class Docstring:
         Return the docstring in the given style.
 
     """
+
     def __init__(self, sections, default_style='numpy'):
         """Initialize.
 

@@ -191,7 +191,7 @@ def test_parse_numpy_self():
     assert (parse_numpy(docstring, contains_quotes=False).sections[2].contents[1].types ==
             ['bool'])
     assert (parse_numpy(docstring, contains_quotes=False).sections[2].contents[1].descs ==
-            ['True if docstring contains """ or \'\'\'.'])
+            [r'True if docstring contains \"\"\" or \'\'\'.'])
     # returns
     assert (parse_numpy(docstring, contains_quotes=False).sections[3].header ==
             'returns')
@@ -215,7 +215,7 @@ def test_parse_numpy_self():
     assert (parse_numpy(docstring, contains_quotes=False).sections[4].contents[1].name ==
             'NotImplementedError')
     assert (parse_numpy(docstring, contains_quotes=False).sections[4].contents[1].descs ==
-            ['If quotes corresponds to a raw string, i.e. r""".'])
+            [r'If quotes corresponds to a raw string, i.e. r\"\"\".'])
 
 
 def test_parse_numpy_equations():

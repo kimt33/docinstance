@@ -44,7 +44,7 @@ def kwarg_wrapper(wrapper):
 # within the definition of a function
 @kwarg_wrapper
 def docstring(obj, width=100, indent_level=0, tabsize=4):
-    """Wrapper for turning _docinstance to __docstring__.
+    """Wrap given object such that _docinstance is used to overwrite __docstring__.
 
     Parameters
     ----------
@@ -92,7 +92,7 @@ def docstring(obj, width=100, indent_level=0, tabsize=4):
 
 @kwarg_wrapper
 def docstring_recursive(obj, width=100, indent_level=0, tabsize=4):
-    """Wrapper for recursively converting docstrings within an object from one format to another.
+    """Wrap given object and its attributes such that __docstring__ is overwritten.
 
     This wrapper recursively converts every member of the object (and their members) if their
     source code is located in the same file.
@@ -216,7 +216,7 @@ def docstring_modify_import(width=100, tabsize=4):
         old_import.special_cases.add(parentdir)
 
         def new_import(*args, **kwargs):
-            """New import function that has been wrapped."""
+            """Import and then overwrite __doc__ using _docinstance."""
             old_import(*args, **kwargs)
 
             # NOTE: the arguments to the function

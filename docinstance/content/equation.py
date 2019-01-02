@@ -19,6 +19,7 @@ class DocEquation(DocContent):
         Return docstring in correponding style.
 
     """
+
     def __init__(self, equations):
         """Initialize.
 

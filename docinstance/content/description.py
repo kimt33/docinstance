@@ -42,6 +42,7 @@ class DocDescription(DocContent):
         Return the docstring in numpy style modified to include signature.
 
     """
+
     def __init__(self, name, signature='', types=None, descs=None):
         """Initialize the object.
 

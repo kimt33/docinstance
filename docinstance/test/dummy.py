@@ -11,6 +11,7 @@ _docinstance = Docstring([
 
 class DummyClass:
     """This too will be replaced."""
+
     _docinstance = Docstring([
         'Class for testing.',
         DocSection('attributes', DocDescription('x', types=str, descs='Example.'))

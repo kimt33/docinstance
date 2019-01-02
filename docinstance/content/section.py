@@ -24,6 +24,7 @@ class DocSection(DocContent):
         Return the docstring in numpy style modified to include signature.
 
     """
+
     def __init__(self, header, contents):
         """Initialize.
 
@@ -297,6 +298,7 @@ class Summary(DocSection):
         Return the docstring in numpy style modified to include signature.
 
     """
+
     def __init__(self, contents):
         """Initialize.
 
