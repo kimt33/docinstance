@@ -434,5 +434,4 @@ for class_name, section_header in dict_classname_headers.items():
 
     # globals is the dictionary of the current module for the symbols
     # types is used to instantiate a class (because all classes are instances of type)
-    globals()[class_name] = type(class_name,
-                                 (DocSection,), {'__init__': make_init(section_header)})
+    globals()[class_name] = type(class_name, (DocSection,), {'__init__': make_init(section_header)})
