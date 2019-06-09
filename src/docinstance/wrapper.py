@@ -155,7 +155,7 @@ def docstring_current_module(width=100, tabsize=4):
 
     """
     # get the module that called this function
-    module = next(
+    module = next(  # pragma: no branch
         inspect.getmodule(i[0])
         for i in inspect.stack()[1:]  # pragma: no branch
         if inspect.getmodule(i[0]) is not None
@@ -195,7 +195,7 @@ def docstring_modify_import(width=100, tabsize=4):
 
     """
     # find the location from which this function is called
-    parentfile = next(
+    parentfile = next(  # pragma: no branch
         inspect.getsourcefile(i[0])
         for i in inspect.stack()[1:]  # pragma: no branch
         if inspect.getmodule(i[0]) is not None
