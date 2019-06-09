@@ -1,6 +1,6 @@
 """Class for representing math equations."""
-from docinstance.utils import wrap
 from docinstance.content.base import DocContent
+from docinstance.utils import wrap
 
 
 class DocEquation(DocContent):

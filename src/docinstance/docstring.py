@@ -44,7 +44,7 @@ class Docstring:
         """
         if isinstance(sections, (str, DocContent)):
             sections = [sections]
-        elif not (
+        if not (
             isinstance(sections, (list, tuple))
             and all(isinstance(i, (str, DocContent)) for i in sections)
         ):
@@ -53,7 +53,7 @@ class Docstring:
                 "strings, or list/tuple of DocContent instances."
             )
         # NOTE: should the empty sections be allowed?
-        elif not sections:
+        if not sections:
             raise ValueError("At least one section must be provided.")
         self.sections = [
             section if isinstance(section, DocSection) else DocSection("", section)
@@ -113,17 +113,17 @@ class Docstring:
         # check input
         if not isinstance(width, int):
             raise TypeError("Maximum width of the line must be given as an integer.")
-        elif width <= 0:
+        if width <= 0:
             raise ValueError("Maximum width of the line must be greater than zero.")
 
         if not isinstance(indent_level, int):
             raise TypeError("Level of indentation must be given as an integer.")
-        elif indent_level < 0:
+        if indent_level < 0:
             raise ValueError("Level of indentation must be greater than or equal to zero.")
 
         if not isinstance(tabsize, int):
             raise TypeError("Number of spaces in a tab must be given as an integer.")
-        elif tabsize <= 0:
+        if tabsize <= 0:
             raise ValueError("Number of spaces in a tab must be greater than zero.")
 
         if style == "numpy":

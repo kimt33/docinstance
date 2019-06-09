@@ -1,10 +1,10 @@
 """Tests for docinstance.parser.numpy."""
-import pytest
-from docinstance.docstring import Docstring
-from docinstance.content.section import DocSection, Summary, ExtendedSummary, Parameters
 from docinstance.content.description import DocDescription
 from docinstance.content.equation import DocEquation
+from docinstance.content.section import DocSection, ExtendedSummary, Parameters, Summary
+from docinstance.docstring import Docstring
 from docinstance.parser.numpy import parse_numpy
+import pytest
 
 
 def test_compare_docinstances():

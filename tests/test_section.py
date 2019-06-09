@@ -1,24 +1,24 @@
 """Test docinstance.content.section."""
-import pytest
-from docinstance.content.section import (
-    DocSection,
-    Summary,
-    ExtendedSummary,
-    Parameters,
-    Attributes,
-    Methods,
-    Returns,
-    Yields,
-    OtherParameters,
-    Raises,
-    Warns,
-    Warnings,
-    SeeAlso,
-    Notes,
-    References,
-    Examples,
-)
 from docinstance.content.description import DocDescription
+from docinstance.content.section import (
+    Attributes,
+    DocSection,
+    Examples,
+    ExtendedSummary,
+    Methods,
+    Notes,
+    OtherParameters,
+    Parameters,
+    Raises,
+    References,
+    Returns,
+    SeeAlso,
+    Summary,
+    Warnings,
+    Warns,
+    Yields,
+)
+import pytest
 
 
 def test_init():

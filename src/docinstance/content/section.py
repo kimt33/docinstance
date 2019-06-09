@@ -1,7 +1,7 @@
 """Class for representing a section in the docstring."""
-from docinstance.utils import wrap, wrap_indent_subsequent
 from docinstance.content.base import DocContent
 from docinstance.content.description import DocDescription
+from docinstance.utils import wrap, wrap_indent_subsequent
 
 
 class DocSection(DocContent):
@@ -446,7 +446,7 @@ def make_init(header):
 
     """
 
-    def __init__(self, contents):
+    def __init__(self, contents):  # noqa: N807
         """Initialize.
 
         Parameters

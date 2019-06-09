@@ -1,6 +1,7 @@
 """Parser for Latex equations."""
-import re
 import inspect
+import re
+
 from docinstance.content.equation import DocEquation
 
 

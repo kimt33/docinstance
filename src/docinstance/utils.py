@@ -1,7 +1,7 @@
 """Utility functions for handling strings and attributes of an object."""
-import textwrap
 import inspect
 import os
+import textwrap
 
 
 def wrap(text, width=100, indent_level=0, tabsize=4, **kwargs):

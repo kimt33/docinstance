@@ -1,8 +1,9 @@
 """Functions for wrapping a python object to utilize the docinstance object."""
-import inspect
-import os
 from functools import wraps
 import importlib
+import inspect
+import os
+
 from docinstance.utils import extract_members
 
 

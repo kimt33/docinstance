@@ -1,7 +1,7 @@
 """Class for representing a description of objects/errors in the docstring."""
-from docinstance.utils import wrap, wrap_indent_subsequent
 from docinstance.content.base import DocContent
 from docinstance.content.equation import DocEquation
+from docinstance.utils import wrap, wrap_indent_subsequent
 
 
 class DocDescription(DocContent):

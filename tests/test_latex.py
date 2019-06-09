@@ -1,6 +1,6 @@
 """Tests for docinstance.parser.latex."""
-from docinstance.parser.latex import is_math, parse_equation
 from docinstance.content.equation import DocEquation
+from docinstance.parser.latex import is_math, parse_equation
 
 
 def test_is_math():

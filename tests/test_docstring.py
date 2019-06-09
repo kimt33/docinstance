@@ -1,8 +1,8 @@
 """Test docinstance.docstring."""
-import pytest
-from docinstance.docstring import Docstring
-from docinstance.content.section import DocSection
 from docinstance.content.description import DocDescription
+from docinstance.content.section import DocSection
+from docinstance.docstring import Docstring
+import pytest
 
 
 def test_init():

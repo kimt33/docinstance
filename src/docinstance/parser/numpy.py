@@ -1,32 +1,32 @@
 """Parser for numpy docstring."""
-import re
 import inspect
-from docinstance.parser.latex import parse_equation
-from docinstance.docstring import Docstring
+import re
+
 from docinstance.content.description import DocDescription
-from docinstance.content.section import (
-    DocSection,
-    Summary,
-    ExtendedSummary,
-    Parameters,
-    Attributes,
-    Methods,
-    Returns,
-    Yields,
-    OtherParameters,
-    Raises,
-    Warns,
-    Warnings,
-    SeeAlso,
-    Notes,
-    References,
-    Examples,
-)
 from docinstance.content.equation import DocEquation
+from docinstance.content.section import (  # pylint: disable=E0611
+    Attributes,
+    DocSection,
+    Examples,
+    ExtendedSummary,
+    Methods,
+    Notes,
+    OtherParameters,
+    Parameters,
+    Raises,
+    References,
+    Returns,
+    SeeAlso,
+    Summary,
+    Warnings,
+    Warns,
+    Yields,
+)
+from docinstance.docstring import Docstring
+from docinstance.parser.latex import parse_equation
 
 
-# pylint: disable=R0912,R0914,R0915
-def parse_numpy(docstring, contains_quotes=False):
+def parse_numpy(docstring, contains_quotes=False):  # pylint: disable=R0912,R0914,R0915
     r"""Parse a docstring in numpy format into a Docstring instance.
 
     Multiple descriptions of the indented information (e.g. parameters, attributes, methods,

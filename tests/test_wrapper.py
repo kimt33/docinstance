@@ -2,16 +2,17 @@
 import importlib
 import os
 import sys
-import pytest
-from docinstance.wrapper import (
-    kwarg_wrapper,
-    docstring,
-    docstring_recursive,
-    docstring_current_module,
-)
-from docinstance.docstring import Docstring
-from docinstance.content.section import DocSection
+
 from docinstance.content.description import DocDescription
+from docinstance.content.section import DocSection
+from docinstance.docstring import Docstring
+from docinstance.wrapper import (
+    docstring,
+    docstring_current_module,
+    docstring_recursive,
+    kwarg_wrapper,
+)
+import pytest
 
 
 def test_kwarg_wrapper():
@@ -164,7 +165,7 @@ def test_wrapper_docstring_on_class():
         _docinstance = docinstance1
 
         def f(self):
-            """Some docstring."""
+            """Do nothing."""
             pass
 
         f._docinstance = docinstance2
@@ -173,7 +174,7 @@ def test_wrapper_docstring_on_class():
         "Test docstring.\n\n" "Attributes\n" "----------\n" "x : int\n" "    Something.\n\n"
     )
     assert Test._docinstance == docinstance1
-    assert Test.f.__doc__ == "Some docstring."
+    assert Test.f.__doc__ == "Do nothing."
     assert Test.f._docinstance == docinstance2
 
     # w/ indentation

@@ -1,6 +1,6 @@
 """Test docinstance.content.description."""
-import pytest
 from docinstance.content.description import DocDescription
+import pytest
 
 
 def test_init():

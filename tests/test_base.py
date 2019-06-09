@@ -1,12 +1,13 @@
 """Test docinstance.content.base."""
-import pytest
 from docinstance.content.base import DocContent
+import pytest
 
 
 class ModDocContent(DocContent):
     """DocContent where the init does not raise an error."""
 
     def __init__(self):
+        """Initialize."""
         pass
 
 

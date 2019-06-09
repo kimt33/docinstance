@@ -1,6 +1,6 @@
 """Test docinstance.utils."""
-import pytest
 import docinstance.utils
+import pytest
 
 
 def test_wrap():
