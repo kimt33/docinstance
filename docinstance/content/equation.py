@@ -35,9 +35,9 @@ class DocEquation(DocContent):
 
         """
         if not isinstance(equations, str):
-            raise TypeError('Equations must be given as one string.')
-        self.equations = equations.split('\n')
-        if self.equations[-1] == '':
+            raise TypeError("Equations must be given as one string.")
+        self.equations = equations.split("\n")
+        if self.equations[-1] == "":
             self.equations = self.equations[:-1]
 
     def make_numpy_docstring(self, width, indent_level, tabsize):
@@ -63,22 +63,29 @@ class DocEquation(DocContent):
             If the width is too small to fit the equation for the given indent and tabsize.
 
         """
-        output = ''
+        output = ""
         if len(self.equations) == 1:
-            first_line = wrap('.. math:: ' + self.equations[0],
-                              width=width, indent_level=indent_level, tabsize=tabsize)
+            first_line = wrap(
+                ".. math:: " + self.equations[0],
+                width=width,
+                indent_level=indent_level,
+                tabsize=tabsize,
+            )
             if len(first_line) == 1:
                 output += first_line[0]
-                output += '\n\n'
+                output += "\n\n"
                 return output
-        first_line = wrap('.. math:: ', width=width, indent_level=indent_level, tabsize=tabsize)
+        first_line = wrap(".. math:: ", width=width, indent_level=indent_level, tabsize=tabsize)
         if len(first_line) != 1:
-            raise ValueError('Given line width is too small to fit the equation for the given '
-                             'indent and tab size')
+            raise ValueError(
+                "Given line width is too small to fit the equation for the given "
+                "indent and tab size"
+            )
         output += first_line[0]
-        output += '\n\n'
-        output += '\n'.join('\n'.join(wrap(equation, width=width, indent_level=indent_level + 1,
-                                           tabsize=tabsize))
-                            for equation in self.equations)
-        output += '\n\n'
+        output += "\n\n"
+        output += "\n".join(
+            "\n".join(wrap(equation, width=width, indent_level=indent_level + 1, tabsize=tabsize))
+            for equation in self.equations
+        )
+        output += "\n\n"
         return output

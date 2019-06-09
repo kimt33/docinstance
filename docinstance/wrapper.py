@@ -14,6 +14,7 @@ def kwarg_wrapper(wrapper):
     (with another wrapper).
 
     """
+
     @wraps(wrapper)
     def new_wrapper(obj=None, **kwargs):
         """Reconstruction of the provided wrapper so that keyword arguments are rewritten.
@@ -67,7 +68,7 @@ def docstring(obj, width=100, indent_level=0, tabsize=4):
 
     """
     # TODO: if there is a parser, parse the docstring into docinstance
-    if not hasattr(obj, '_docinstance'):
+    if not hasattr(obj, "_docinstance"):
         return obj
     # generate new docstring from docinstance
     # pylint: disable=W0212
@@ -127,7 +128,7 @@ def docstring_recursive(obj, width=100, indent_level=0, tabsize=4):
     # wrap members
     for member in extract_members(obj).values():
         # recurse for all members of member
-        docstring_recursive(member, width=width, indent_level=indent_level+1, tabsize=tabsize)
+        docstring_recursive(member, width=width, indent_level=indent_level + 1, tabsize=tabsize)
 
     return obj
 
@@ -153,8 +154,11 @@ def docstring_current_module(width=100, tabsize=4):
 
     """
     # get the module that called this function
-    module = next(inspect.getmodule(i[0]) for i in inspect.stack()[1:]  # pragma: no branch
-                  if inspect.getmodule(i[0]) is not None)
+    module = next(
+        inspect.getmodule(i[0])
+        for i in inspect.stack()[1:]  # pragma: no branch
+        if inspect.getmodule(i[0]) is not None
+    )
     # recursively convert
     # NOTE: docstring for the module will always not be indented
     docstring_recursive(module, width=width, indent_level=0, tabsize=tabsize)
@@ -190,8 +194,11 @@ def docstring_modify_import(width=100, tabsize=4):
 
     """
     # find the location from which this function is called
-    parentfile = next(inspect.getsourcefile(i[0]) for i in inspect.stack()[1:]  # pragma: no branch
-                      if inspect.getmodule(i[0]) is not None)
+    parentfile = next(
+        inspect.getsourcefile(i[0])
+        for i in inspect.stack()[1:]  # pragma: no branch
+        if inspect.getmodule(i[0]) is not None
+    )
     parentdir = os.path.dirname(parentfile)
 
     def pandora_box(old_import):
@@ -211,7 +218,7 @@ def docstring_modify_import(width=100, tabsize=4):
             recursively scanning the __dict__.
 
         """
-        if not hasattr(old_import, 'special_cases'):
+        if not hasattr(old_import, "special_cases"):
             old_import.special_cases = set()
         old_import.special_cases.add(parentdir)
 
@@ -225,8 +232,10 @@ def docstring_modify_import(width=100, tabsize=4):
             # decorator will be applied only to `exc_module`.
             module = args[1]
             sourcefile = inspect.getsourcefile(module)
-            if any(os.path.commonpath([sourcefile, parent]) == parent
-                   for parent in old_import.special_cases):
+            if any(
+                os.path.commonpath([sourcefile, parent]) == parent
+                for parent in old_import.special_cases
+            ):
                 docstring_recursive(module, width=width, indent_level=0, tabsize=tabsize)
 
         new_import.special_cases = old_import.special_cases

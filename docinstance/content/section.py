@@ -57,13 +57,22 @@ class DocSection(DocContent):
             contents = [contents]
         # NOTE: is it really necessary to prevent contents of a section from mixing
         # strings/DocContent and DocDescription?
-        elif not (isinstance(contents, (tuple, list)) and
-                  (all(isinstance(content, (str, DocContent)) and
-                       not isinstance(content, DocDescription) for content in contents) or
-                   all(isinstance(content, DocDescription) for content in contents))):
-            raise TypeError("The parameter `contents` must be a string, a list/tuple of "
-                            "DocDescription, or a list/tuple of strings/DocContent (not "
-                            "DocDescription).")
+        elif not (
+            isinstance(contents, (tuple, list))
+            and (
+                all(
+                    isinstance(content, (str, DocContent))
+                    and not isinstance(content, DocDescription)
+                    for content in contents
+                )
+                or all(isinstance(content, DocDescription) for content in contents)
+            )
+        ):
+            raise TypeError(
+                "The parameter `contents` must be a string, a list/tuple of "
+                "DocDescription, or a list/tuple of strings/DocContent (not "
+                "DocDescription)."
+            )
         self.contents = list(contents)
 
     # pylint: disable=W0221
@@ -94,27 +103,30 @@ class DocSection(DocContent):
             If the title is too long for the given width and indentation.
 
         """
-        output = ''
+        output = ""
         # title
-        if self.header != '':
-            title = wrap(self.header.title(), width=width, indent_level=indent_level,
-                         tabsize=tabsize)
-            divider = wrap('-' * len(self.header), width=width, indent_level=indent_level,
-                           tabsize=tabsize)
+        if self.header != "":
+            title = wrap(
+                self.header.title(), width=width, indent_level=indent_level, tabsize=tabsize
+            )
+            divider = wrap(
+                "-" * len(self.header), width=width, indent_level=indent_level, tabsize=tabsize
+            )
             # NOTE: error will be raised if the line width is not wide enough to fit the title and
             # the divider in one line because the divider is one word and wrap will complain if the
             # line width is not big enough to fit the first word
-            output += '{0}\n{1}\n'.format(title[0], divider[0])
+            output += "{0}\n{1}\n".format(title[0], divider[0])
         # contents
         for paragraph in self.contents:
             # NOTE: since the contents are checked in the initialization, we will assume that the
             # paragraph can only be string or DocDescription
             if isinstance(paragraph, str):
-                output += '\n'.join(wrap(paragraph, width=width, indent_level=indent_level,
-                                         tabsize=tabsize))
-                output += '\n\n'
+                output += "\n".join(
+                    wrap(paragraph, width=width, indent_level=indent_level, tabsize=tabsize)
+                )
+                output += "\n\n"
             # if isinstance(paragraph, DocContent)
-            elif include_signature and hasattr(paragraph, 'make_numpy_docstring_signature'):
+            elif include_signature and hasattr(paragraph, "make_numpy_docstring_signature"):
                 output += paragraph.make_numpy_docstring_signature(width, indent_level, tabsize)
             else:
                 output += paragraph.make_numpy_docstring(width, indent_level, tabsize)
@@ -123,7 +135,7 @@ class DocSection(DocContent):
         else:
             # end a section with two newlines (note that the section already ends with a newline if
             # it ends with a paragraph)
-            output += '\n' * isinstance(paragraph, DocDescription)
+            output += "\n" * isinstance(paragraph, DocDescription)
 
         return output
 
@@ -176,15 +188,19 @@ class DocSection(DocContent):
             If the title is too long for the given width and indentation.
 
         """
-        output = ''
+        output = ""
         # title
-        if self.header != '':
-            title = wrap('{0}:'.format(self.header.title()),
-                         width=width, indent_level=indent_level, tabsize=tabsize)
+        if self.header != "":
+            title = wrap(
+                "{0}:".format(self.header.title()),
+                width=width,
+                indent_level=indent_level,
+                tabsize=tabsize,
+            )
             if len(title) > 1:
-                raise ValueError('The header must fit into the given width with the indentation')
+                raise ValueError("The header must fit into the given width with the indentation")
             output += title[0]
-            output += '\n'
+            output += "\n"
         else:
             # don't indent the contents if there is no header
             indent_level -= 1
@@ -193,18 +209,19 @@ class DocSection(DocContent):
             # NOTE: since the contents are checked in the initialization, we will assume that the
             # paragraph can only be string or DocDescription
             if isinstance(paragraph, str):
-                output += '\n'.join(wrap(paragraph, width=width, indent_level=indent_level+1,
-                                         tabsize=tabsize))
-                output += '\n\n'
+                output += "\n".join(
+                    wrap(paragraph, width=width, indent_level=indent_level + 1, tabsize=tabsize)
+                )
+                output += "\n\n"
             # if isinstance(paragraph, DocContent)
             else:
-                output += paragraph.make_google_docstring(width, indent_level+1, tabsize)
+                output += paragraph.make_google_docstring(width, indent_level + 1, tabsize)
         # pylint: disable=W0120
         # following block clause should always be executed
         else:
             # end a section with two newlines (note that the section already ends with a newline if
             # it ends with a paragraph)
-            output += '\n' * isinstance(paragraph, DocDescription)
+            output += "\n" * isinstance(paragraph, DocDescription)
 
         return output
 
@@ -226,45 +243,57 @@ class DocSection(DocContent):
             Docstring of the given content in sphinx's rst style.
 
         """
-        output = ''
-        header = ''
-        special_headers = {'see also': 'seealso', 'warnings': 'warning', 'warning': 'warning',
-                           'notes': 'note', 'note': 'note', 'to do': 'todo', 'todo': 'todo'}
+        output = ""
+        header = ""
+        special_headers = {
+            "see also": "seealso",
+            "warnings": "warning",
+            "warning": "warning",
+            "notes": "note",
+            "note": "note",
+            "to do": "todo",
+            "todo": "todo",
+        }
 
         if self.header.lower() in special_headers:
-            header = '.. {0}::'.format(special_headers[self.header.lower()])
-        elif self.header != '':
-            output += ':{0}:\n\n'.format(self.header.title())
+            header = ".. {0}::".format(special_headers[self.header.lower()])
+        elif self.header != "":
+            output += ":{0}:\n\n".format(self.header.title())
 
         for i, paragraph in enumerate(self.contents):
             # first content must be treated with care for special headers
             if i == 0 and self.header.lower() in special_headers:
                 # str
                 if isinstance(paragraph, str):
-                    text = '{0} {1}'.format(header, paragraph)
+                    text = "{0} {1}".format(header, paragraph)
                     # FIXME: following can probably be replaced with a better wrapping function
-                    first_content = [' ' * indent_level * tabsize + line for line in
-                                     wrap_indent_subsequent(text,
-                                                            width=width - indent_level*tabsize,
-                                                            indent_level=indent_level+1,
-                                                            tabsize=tabsize)]
-                    output += '\n'.join(first_content)
-                    output += '\n'
+                    first_content = [
+                        " " * indent_level * tabsize + line
+                        for line in wrap_indent_subsequent(
+                            text,
+                            width=width - indent_level * tabsize,
+                            indent_level=indent_level + 1,
+                            tabsize=tabsize,
+                        )
+                    ]
+                    output += "\n".join(first_content)
+                    output += "\n"
                 # DocContent
                 else:
                     output += header
-                    output += '\n'
-                    output += paragraph.make_rst_docstring(width=width,
-                                                           indent_level=indent_level+1,
-                                                           tabsize=tabsize)
+                    output += "\n"
+                    output += paragraph.make_rst_docstring(
+                        width=width, indent_level=indent_level + 1, tabsize=tabsize
+                    )
                 # indent all susequent content
                 indent_level += 1
             elif isinstance(paragraph, str):
-                output += '\n'.join(wrap(paragraph, width=width, indent_level=indent_level,
-                                         tabsize=tabsize))
+                output += "\n".join(
+                    wrap(paragraph, width=width, indent_level=indent_level, tabsize=tabsize)
+                )
                 # NOTE: the second newline may cause problems (because the field might not
                 # recognize text that is more than one newline away)
-                output += '\n\n'
+                output += "\n\n"
             else:
                 output += paragraph.make_rst_docstring(width, indent_level, tabsize)
         # pylint: disable=W0120
@@ -272,7 +301,7 @@ class DocSection(DocContent):
         else:
             # end a section with two newlines (note that the section already ends with a newline
             # if it ends with a paragraph)
-            output += '\n' * isinstance(paragraph, DocDescription)
+            output += "\n" * isinstance(paragraph, DocDescription)
 
         return output
 
@@ -313,7 +342,7 @@ class Summary(DocSection):
             If the given content is not a string.
 
         """
-        self.header = ''
+        self.header = ""
         if not isinstance(contents, str):
             raise TypeError("The parameter `contents` must be a string.")
         self.contents = [contents]
@@ -349,32 +378,47 @@ class Summary(DocSection):
             If the title is too long for the given width and indentation.
 
         """
-        output = ''
+        output = ""
         summary = self.contents[0]
         # if summary cannot fit into first line with one triple quotation
         # if len(summary) + ' ' * indent_level * tabsize > width - 3:
         if len(wrap(summary, width - 3 - int(special), indent_level, tabsize)) > 1:
-            output += '\n'
+            output += "\n"
             # if summary cannot fit into the second line (without tripple quotation)
             # if len(summary) + ' ' * indent_level * tabsize > width:
             if len(wrap(summary, width, indent_level, tabsize)) > 1:
-                raise ValueError('First section of the docstring (summary) must fit completely into'
-                                 ' the first line of the docstring (including the triple quotation)'
-                                 ' or the second line.')
+                raise ValueError(
+                    "First section of the docstring (summary) must fit completely into"
+                    " the first line of the docstring (including the triple quotation)"
+                    " or the second line."
+                )
         output += summary
         # if summary only and summary can fit into the first line with two triple quotations
-        if not (summary_only and
-                len(wrap(summary, width - 6 - int(special), indent_level, tabsize)) == 1):
-            output += '\n\n'
+        if not (
+            summary_only
+            and len(wrap(summary, width - 6 - int(special), indent_level, tabsize)) == 1
+        ):
+            output += "\n\n"
         return output
 
 
 # pylint: disable=C0103
-dict_classname_headers = {'ExtendedSummary': '', 'Parameters': None, 'Attributes': None,
-                          'Methods': None, 'Returns': None, 'Yields': None,
-                          'OtherParameters': 'other parameters', 'Raises': None, 'Warns': None,
-                          'Warnings': None, 'SeeAlso': 'see also', 'Notes': None,
-                          'References': None, 'Examples': None}
+dict_classname_headers = {
+    "ExtendedSummary": "",
+    "Parameters": None,
+    "Attributes": None,
+    "Methods": None,
+    "Returns": None,
+    "Yields": None,
+    "OtherParameters": "other parameters",
+    "Raises": None,
+    "Warns": None,
+    "Warnings": None,
+    "SeeAlso": "see also",
+    "Notes": None,
+    "References": None,
+    "Examples": None,
+}
 
 
 # factory for init
@@ -401,6 +445,7 @@ def make_init(header):
     See https://stackoverflow.com/questions/3431676/creating-functions-in-a-loop for more details.
 
     """
+
     def __init__(self, contents):
         """Initialize.
 
@@ -434,4 +479,4 @@ for class_name, section_header in dict_classname_headers.items():
 
     # globals is the dictionary of the current module for the symbols
     # types is used to instantiate a class (because all classes are instances of type)
-    globals()[class_name] = type(class_name, (DocSection,), {'__init__': make_init(section_header)})
+    globals()[class_name] = type(class_name, (DocSection,), {"__init__": make_init(section_header)})

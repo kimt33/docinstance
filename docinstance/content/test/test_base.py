@@ -5,6 +5,7 @@ from docinstance.content.base import DocContent
 
 class ModDocContent(DocContent):
     """DocContent where the init does not raise an error."""
+
     def __init__(self):
         pass
 
@@ -27,11 +28,13 @@ def test_base_eq():
 
     class Empty:
         """Empty class."""
+
         pass
+
     test2 = Empty()
     test2.x = 1
     assert not test1 == test2
-    test2 = {'x': 1}
+    test2 = {"x": 1}
     assert not test1 == test2
 
 
@@ -47,11 +50,13 @@ def test_base_ne():
 
     class Empty:
         """Empty class."""
+
         pass
+
     test2 = Empty()
     test2.x = 1
     assert test1 != test2
-    test2 = {'x': 1}
+    test2 = {"x": 1}
     assert test1 != test2
 
 

@@ -43,7 +43,7 @@ class DocDescription(DocContent):
 
     """
 
-    def __init__(self, name, signature='', types=None, descs=None):
+    def __init__(self, name, signature="", types=None, descs=None):
         """Initialize the object.
 
         Parameters
@@ -86,20 +86,27 @@ class DocDescription(DocContent):
             types = []
         elif isinstance(types, (type, str)):
             types = [types]
-        elif not (isinstance(types, (list, tuple)) and
-                  all(isinstance(i, (type, str)) for i in types)):
-            raise TypeError("Types of allowed objects must be given as a class or list/tuple of "
-                            "classes/strings.")
+        elif not (
+            isinstance(types, (list, tuple)) and all(isinstance(i, (type, str)) for i in types)
+        ):
+            raise TypeError(
+                "Types of allowed objects must be given as a class or list/tuple of "
+                "classes/strings."
+            )
         self.types = list(types)
 
         if descs is None:
             descs = []
         elif isinstance(descs, (str, DocEquation)):
             descs = [descs]
-        elif not (isinstance(descs, (list, tuple)) and
-                  all(isinstance(i, (str, DocEquation)) for i in descs)):
-            raise TypeError("Descriptions of the object/error must be given as a string or "
-                            "list/tuple of strings")
+        elif not (
+            isinstance(descs, (list, tuple))
+            and all(isinstance(i, (str, DocEquation)) for i in descs)
+        ):
+            raise TypeError(
+                "Descriptions of the object/error must be given as a string or "
+                "list/tuple of strings"
+            )
         self.descs = list(descs)
 
     @property
@@ -143,11 +150,13 @@ class DocDescription(DocContent):
         The signature of a function is not included in the numpy docstring.
 
         """
-        if self.signature != '':
-            print('Warning: In NumPy docstring format, the signature of a function is not '
-                  'included.')
+        if self.signature != "":
+            print(
+                "Warning: In NumPy docstring format, the signature of a function is not "
+                "included."
+            )
 
-        output = ''
+        output = ""
         # var_name
         # OR
         # error_name
@@ -157,39 +166,53 @@ class DocDescription(DocContent):
             output += wrap(self.name, width=width, indent_level=indent_level, tabsize=tabsize)[0]
         # var_name : var_type
         elif len(self.types) == 1:
-            name_type = wrap('{0} : {1}'.format(self.name, self.types_str[0]),
-                             width=width, indent_level=indent_level, tabsize=tabsize)
+            name_type = wrap(
+                "{0} : {1}".format(self.name, self.types_str[0]),
+                width=width,
+                indent_level=indent_level,
+                tabsize=tabsize,
+            )
             # check that the both the name and the type can fit in the given width and indentation
             if len(name_type) > 1:
                 # FIXME: need a better message
-                raise ValueError('The name and the type of the variable are too long to fit into '
-                                 'given width and indentation.')
+                raise ValueError(
+                    "The name and the type of the variable are too long to fit into "
+                    "given width and indentation."
+                )
             output += name_type[0]
         # var_name : {var_type1, var_type2, default_type}
         else:
-            name_types = wrap('{0} : {{{1}}}'.format(self.name, ', '.join(self.types_str)),
-                              width=width, indent_level=indent_level, tabsize=tabsize)
+            name_types = wrap(
+                "{0} : {{{1}}}".format(self.name, ", ".join(self.types_str)),
+                width=width,
+                indent_level=indent_level,
+                tabsize=tabsize,
+            )
             # if there are too many types to fit into one line, the remaining lines should be
             # indented to line up after "var_name : {"
-            wrap_point = len('{0} : {{'.format(self.name))
+            wrap_point = len("{0} : {{".format(self.name))
             # check that the name and first type can fit into the first line
-            if not name_types[0].startswith('{0}{1} : {{{2}'.format(' ' * indent_level * tabsize,
-                                                                    self.name, self.types_str[0])):
+            if not name_types[0].startswith(
+                "{0}{1} : {{{2}".format(" " * indent_level * tabsize, self.name, self.types_str[0])
+            ):
                 # FIXME: need a better message
-                raise ValueError('The name and the first type of the variable are too long to fit '
-                                 'into the given width and indentation.')
+                raise ValueError(
+                    "The name and the first type of the variable are too long to fit "
+                    "into the given width and indentation."
+                )
             # wrap the remaining lines
             name_types_lines = [name_types[0]]
             for line in name_types[1:]:
                 name_types_lines += wrap(line, width=width, indent_level=1, tabsize=wrap_point)
-            output += '\n'.join(name_types_lines)
-        output += '\n'
+            output += "\n".join(name_types_lines)
+        output += "\n"
 
         # descriptions
         for paragraph in self.descs:
-            output += '\n'.join(wrap(paragraph,
-                                     width=width, indent_level=indent_level+1, tabsize=tabsize))
-            output += '\n'
+            output += "\n".join(
+                wrap(paragraph, width=width, indent_level=indent_level + 1, tabsize=tabsize)
+            )
+            output += "\n"
 
         return output
 
@@ -212,8 +235,8 @@ class DocDescription(DocContent):
             signature.
 
         """
-        new_name = '{0}{1}'.format(self.name, self.signature)
-        new_description = self.__class__(new_name, '', self.types, self.descs)
+        new_name = "{0}{1}".format(self.name, self.signature)
+        new_description = self.__class__(new_name, "", self.types, self.descs)
         return new_description.make_numpy_docstring(width, indent_level, tabsize)
 
     def make_google_docstring(self, width, indent_level, tabsize):
@@ -238,42 +261,55 @@ class DocDescription(DocContent):
         The signature of a function is not included in the google docstring.
 
         """
-        output = ''
+        output = ""
         first_block = []
         # var_name:
         if not self.types:
-            first_block = wrap('{0}:'.format(self.name),
-                               width=width, indent_level=indent_level, tabsize=tabsize)
+            first_block = wrap(
+                "{0}:".format(self.name), width=width, indent_level=indent_level, tabsize=tabsize
+            )
         # var_name (type1, type2):
         else:
             # FIXME: optional parameters need to be specified within google doc
-            types_str = [i if isinstance(i, str) else ':obj:`{0}`'.format(j)
-                         for i, j in zip(self.types, self.types_str)]
-            text = '{0} ({1}):'.format(self.name, ', '.join(types_str))
+            types_str = [
+                i if isinstance(i, str) else ":obj:`{0}`".format(j)
+                for i, j in zip(self.types, self.types_str)
+            ]
+            text = "{0} ({1}):".format(self.name, ", ".join(types_str))
             # if there are too many types to fit into one line, the remaining lines should be
             # indented to line up after "var_name ("
             # FIXME: following can probably be replaced with a better wrapping function
-            first_block = [' ' * indent_level * tabsize + line for line in
-                           wrap_indent_subsequent(text, width=width - indent_level*tabsize,
-                                                  indent_level=1,
-                                                  tabsize=len('{0} ('.format(self.name)))]
+            first_block = [
+                " " * indent_level * tabsize + line
+                for line in wrap_indent_subsequent(
+                    text,
+                    width=width - indent_level * tabsize,
+                    indent_level=1,
+                    tabsize=len("{0} (".format(self.name)),
+                )
+            ]
         # add descriptions
         if self.descs:
-            output += '\n'.join(first_block[:-1])
+            output += "\n".join(first_block[:-1])
             if len(first_block) != 1:
-                output += '\n'
+                output += "\n"
             # FIXME: following can probably be replaced with a better wrapping function
-            first_desc = wrap_indent_subsequent(first_block[-1] + ' ' + self.descs[0], width=width,
-                                                indent_level=indent_level+1, tabsize=tabsize)
-            output += '\n'.join(first_desc)
-            output += '\n'
+            first_desc = wrap_indent_subsequent(
+                first_block[-1] + " " + self.descs[0],
+                width=width,
+                indent_level=indent_level + 1,
+                tabsize=tabsize,
+            )
+            output += "\n".join(first_desc)
+            output += "\n"
             for desc in self.descs[1:]:
-                output += '\n'.join(wrap(desc, width=width, indent_level=indent_level+1,
-                                         tabsize=tabsize))
-                output += '\n'
+                output += "\n".join(
+                    wrap(desc, width=width, indent_level=indent_level + 1, tabsize=tabsize)
+                )
+                output += "\n"
         else:
-            output += '\n'.join(first_block)
-            output += '\n'
+            output += "\n".join(first_block)
+            output += "\n"
         return output
 
     def make_rst_docstring(self, width, indent_level, tabsize):
@@ -299,36 +335,51 @@ class DocDescription(DocContent):
             If the parameter name is too long to fit within the given width and indent.
 
         """
-        output = ''
+        output = ""
         if self.descs:
-            text = ':param {0}: {1}'.format(self.name, self.descs[0])
+            text = ":param {0}: {1}".format(self.name, self.descs[0])
             # FIXME: following can probably be replaced with a better wrapping function
-            block = [' ' * indent_level * tabsize + line for line in
-                     wrap_indent_subsequent(text, width=width - indent_level*tabsize,
-                                            indent_level=1, tabsize=tabsize)]
-            output += '\n'.join(block)
-            output += '\n'
+            block = [
+                " " * indent_level * tabsize + line
+                for line in wrap_indent_subsequent(
+                    text, width=width - indent_level * tabsize, indent_level=1, tabsize=tabsize
+                )
+            ]
+            output += "\n".join(block)
+            output += "\n"
             if len(self.descs) > 1:
                 for desc in self.descs[1:]:
-                    output += '\n'.join(wrap(desc, width=width, indent_level=indent_level+1,
-                                             tabsize=tabsize))
-                    output += '\n'
+                    output += "\n".join(
+                        wrap(desc, width=width, indent_level=indent_level + 1, tabsize=tabsize)
+                    )
+                    output += "\n"
         else:
-            block = wrap(':param {0}:'.format(self.name), width=width, indent_level=indent_level,
-                         tabsize=tabsize)
+            block = wrap(
+                ":param {0}:".format(self.name),
+                width=width,
+                indent_level=indent_level,
+                tabsize=tabsize,
+            )
             if len(block) > 1:
-                raise ValueError('Parameter name is too long to fit within the given line width and'
-                                 ' indent level.')
+                raise ValueError(
+                    "Parameter name is too long to fit within the given line width and"
+                    " indent level."
+                )
             output += block[0]
-            output += '\n'
+            output += "\n"
 
-        types_str = [i if isinstance(i, str) else ':obj:`{0}`'.format(j)
-                     for i, j in zip(self.types, self.types_str)]
+        types_str = [
+            i if isinstance(i, str) else ":obj:`{0}`".format(j)
+            for i, j in zip(self.types, self.types_str)
+        ]
         if self.types:
-            text = ':type {0}: {1}'.format(self.name, ', '.join(types_str))
-            block = [' ' * indent_level * tabsize + line for line in
-                     wrap_indent_subsequent(text, width=width - indent_level*tabsize,
-                                            indent_level=1, tabsize=tabsize)]
-            output += '\n'.join(block)
-            output += '\n'
+            text = ":type {0}: {1}".format(self.name, ", ".join(types_str))
+            block = [
+                " " * indent_level * tabsize + line
+                for line in wrap_indent_subsequent(
+                    text, width=width - indent_level * tabsize, indent_level=1, tabsize=tabsize
+                )
+            ]
+            output += "\n".join(block)
+            output += "\n"
         return output
