@@ -34,12 +34,16 @@ class DocDescription(DocContent):
     -------
     __init__(self, name, signature='', types='', descs='')
         Initialize.
-    make_docstring(self, style, width, indent_level, tabsize)
-        Return docstring in correponding style.
-    make_numpy_docstring(self, width, indent_level, tabsize)
+    make_docstring(self, width, indent_level, tabsize, style)
+        Return the docstring of the content in the given style.
+    make_docstring_numpy(self, width, indent_level, tabsize)
         Return the docstring in numpy style.
-    make_numpy_docstring_signature(self, width, indent_level, tabsize)
+    make_docstring_numpy_signature(self, width, indent_level, tabsize)
         Return the docstring in numpy style modified to include signature.
+    make_docstring_google(self, width, indent_level, tabsize)
+        Return the docstring in google style.
+    make_docstring_rst(self, width, indent_level, tabsize)
+        Return the docstring in rst style.
 
     """
 
@@ -121,7 +125,7 @@ class DocDescription(DocContent):
         """
         return [i.__name__ if isinstance(i, type) else i for i in self.types]
 
-    def make_numpy_docstring(self, width, indent_level, tabsize):
+    def make_docstring_numpy(self, width, indent_level, tabsize):
         """Return the docstring in numpy style.
 
         Parameters
@@ -216,7 +220,7 @@ class DocDescription(DocContent):
 
         return output
 
-    def make_numpy_docstring_signature(self, width, indent_level, tabsize):
+    def make_docstring_numpy_signature(self, width, indent_level, tabsize):
         """Return the docstring in numpy style modified to include signature.
 
         Parameters
@@ -237,9 +241,9 @@ class DocDescription(DocContent):
         """
         new_name = "{0}{1}".format(self.name, self.signature)
         new_description = self.__class__(new_name, "", self.types, self.descs)
-        return new_description.make_numpy_docstring(width, indent_level, tabsize)
+        return new_description.make_docstring_numpy(width, indent_level, tabsize)
 
-    def make_google_docstring(self, width, indent_level, tabsize):
+    def make_docstring_google(self, width, indent_level, tabsize):
         """Return the docstring of the content in google style.
 
         Parameters
@@ -312,7 +316,7 @@ class DocDescription(DocContent):
             output += "\n"
         return output
 
-    def make_rst_docstring(self, width, indent_level, tabsize):
+    def make_docstring_rst(self, width, indent_level, tabsize):
         """Return the docstring in sphinx's rst format.
 
         Parameters

@@ -72,7 +72,7 @@ def test_make_docstring():
         test.make_docstring(tabsize=-2)
     with pytest.raises(ValueError):
         test.make_docstring(tabsize=0)
-    with pytest.raises(ValueError):
+    with pytest.raises(NotImplementedError):
         test.make_docstring(style="random style")
     # bad ordering
     test = Docstring(["summary", DocSection("parameters", ""), "extended summary"])
@@ -118,7 +118,7 @@ def test_make_docstring():
         ]
     )
     assert (
-        test.make_docstring(width=25, style="numpy with signature")
+        test.make_docstring(width=25, style="numpy_signature")
         == "summary\n\nMethods\n-------\nfunc1(a, b) : str\n    Example.\n\n"
     )
     # google

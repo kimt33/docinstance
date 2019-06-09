@@ -61,22 +61,20 @@ def test_base_ne():
     assert test1 != test2
 
 
-def test_base_make_numpy_docstring():
-    """Test DocContent.make_numpy_docstring."""
+def test_base_make_docstring():
+    """Test DocContent.make_docstring."""
     test = ModDocContent()
+    with pytest.raises(TypeError):
+        test.make_docstring(100, 0, 4, "")
+    with pytest.raises(TypeError):
+        test.make_docstring(100, 0, 4, ["numpy"])
+
+    test.make_docstring_test = lambda width, indent_level, tabsize: "answer"
+    assert test.make_docstring(100, 0, 4, "test") == "answer"
+
     with pytest.raises(NotImplementedError):
-        test.make_numpy_docstring(100, 0, 4)
-
-
-def test_base_make_google_docstring():
-    """Test DocContent.make_google_docstring."""
-    test = ModDocContent()
+        test.make_docstring(100, 0, 4, "numpy")
     with pytest.raises(NotImplementedError):
-        test.make_google_docstring(100, 0, 4)
-
-
-def test_base_make_rst_docstring():
-    """Test DocContent.make_rst_docstring."""
-    test = ModDocContent()
+        test.make_docstring(100, 0, 4, "google")
     with pytest.raises(NotImplementedError):
-        test.make_rst_docstring(100, 0, 4)
+        test.make_docstring(100, 0, 4, "rst")

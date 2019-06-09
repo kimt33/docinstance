@@ -18,10 +18,16 @@ class DocSection(DocContent):
     -------
     __init__(self, header, contents)
         Initialize.
-    make_numpy_docstring(self, width, indent_level, tabsize, include_signature=False)
+    make_docstring_numpy(self, width, indent_level, tabsize)
         Return the docstring in numpy style.
-    make_numpy_docstring_signature(self, width, indent_level, tabsize)
+    make_docstring_numpy(self, width, indent_level, tabsize, include_signature=False)
+        Return the docstring in numpy style.
+    make_docstring_numpy_signature(self, width, indent_level, tabsize)
         Return the docstring in numpy style modified to include signature.
+    make_docstring_google(self, width, indent_level, tabsize)
+        Return the docstring in google style.
+    make_docstring_rst(self, width, indent_level, tabsize)
+        Return the docstring in rst style.
 
     """
 
@@ -76,8 +82,8 @@ class DocSection(DocContent):
         self.contents = list(contents)
 
     # pylint: disable=W0221
-    # the extra argument is used in the make_numpy_docstring_signature
-    def make_numpy_docstring(self, width, indent_level, tabsize, include_signature=False):
+    # the extra argument is used in the make_docstring_numpy_signature
+    def make_docstring_numpy(self, width, indent_level, tabsize, include_signature=False):
         """Return the docstring in numpy style.
 
         Parameters
@@ -126,10 +132,10 @@ class DocSection(DocContent):
                 )
                 output += "\n\n"
             # if isinstance(paragraph, DocContent)
-            elif include_signature and hasattr(paragraph, "make_numpy_docstring_signature"):
-                output += paragraph.make_numpy_docstring_signature(width, indent_level, tabsize)
+            elif include_signature and hasattr(paragraph, "make_docstring_numpy_signature"):
+                output += paragraph.make_docstring_numpy_signature(width, indent_level, tabsize)
             else:
-                output += paragraph.make_numpy_docstring(width, indent_level, tabsize)
+                output += paragraph.make_docstring_numpy(width, indent_level, tabsize)
         # pylint: disable=W0120
         # following block clause should always be executed
         else:
@@ -139,7 +145,7 @@ class DocSection(DocContent):
 
         return output
 
-    def make_numpy_docstring_signature(self, width, indent_level, tabsize):
+    def make_docstring_numpy_signature(self, width, indent_level, tabsize):
         """Return the docstring in numpy style modified to include signature.
 
         Parameters
@@ -163,9 +169,9 @@ class DocSection(DocContent):
             If any of the paragraph is neither a string nor a DocDescription instance.
 
         """
-        return self.make_numpy_docstring(width, indent_level, tabsize, include_signature=True)
+        return self.make_docstring_numpy(width, indent_level, tabsize, include_signature=True)
 
-    def make_google_docstring(self, width, indent_level, tabsize):
+    def make_docstring_google(self, width, indent_level, tabsize):
         """Return the docstring of the section in google style.
 
         Parameters
@@ -215,7 +221,7 @@ class DocSection(DocContent):
                 output += "\n\n"
             # if isinstance(paragraph, DocContent)
             else:
-                output += paragraph.make_google_docstring(width, indent_level + 1, tabsize)
+                output += paragraph.make_docstring_google(width, indent_level + 1, tabsize)
         # pylint: disable=W0120
         # following block clause should always be executed
         else:
@@ -225,7 +231,7 @@ class DocSection(DocContent):
 
         return output
 
-    def make_rst_docstring(self, width, indent_level, tabsize):
+    def make_docstring_rst(self, width, indent_level, tabsize):
         """Return the docstring in sphinx's rst format.
 
         Parameters
@@ -282,7 +288,7 @@ class DocSection(DocContent):
                 else:
                     output += header
                     output += "\n"
-                    output += paragraph.make_rst_docstring(
+                    output += paragraph.make_docstring_rst(
                         width=width, indent_level=indent_level + 1, tabsize=tabsize
                     )
                 # indent all susequent content
@@ -295,7 +301,7 @@ class DocSection(DocContent):
                 # recognize text that is more than one newline away)
                 output += "\n\n"
             else:
-                output += paragraph.make_rst_docstring(width, indent_level, tabsize)
+                output += paragraph.make_docstring_rst(width, indent_level, tabsize)
         # pylint: disable=W0120
         # following block clause should always be executed
         else:
@@ -321,9 +327,9 @@ class Summary(DocSection):
     -------
     __init__(self, header, contents)
         Initialize.
-    make_numpy_docstring(self, width, indent_level, tabsize, include_signature=False)
+    make_docstring_numpy(self, width, indent_level, tabsize, include_signature=False)
         Return the docstring in numpy style.
-    make_numpy_docstring_signature(self, width, indent_level, tabsize)
+    make_docstring_numpy_signature(self, width, indent_level, tabsize)
         Return the docstring in numpy style modified to include signature.
 
     """

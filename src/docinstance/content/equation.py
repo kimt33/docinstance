@@ -15,8 +15,10 @@ class DocEquation(DocContent):
     -------
     __init__(self, equations)
         Initialize.
-    make_numpy_docstring(self, style, width, indent_level, tabsize)
-        Return docstring in correponding style.
+    make_docstring(self, width, indent_level, tabsize, style)
+        Return the docstring as a string in the given style.
+    make_docstring_numpy(self, width, indent_level, tabsize)
+        Return the docstring in numpy style.
 
     """
 
@@ -40,7 +42,7 @@ class DocEquation(DocContent):
         if self.equations[-1] == "":
             self.equations = self.equations[:-1]
 
-    def make_numpy_docstring(self, width, indent_level, tabsize):
+    def make_docstring_numpy(self, width, indent_level, tabsize):
         """Return the docstring in numpy style.
 
         Parameters

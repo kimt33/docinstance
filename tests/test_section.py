@@ -52,19 +52,19 @@ def test_init():
     assert test.contents == [doc1, doc2]
 
 
-def test_make_numpy_docstring():
-    """Test DocSection.make_numpy_docstring."""
+def test_make_docstring_numpy():
+    """Test DocSection.make_docstring_numpy."""
     # string content
     test = DocSection("header name", "hello")
-    assert test.make_numpy_docstring(11, 0, 4) == "Header Name\n-----------\nhello\n\n"
-    assert test.make_numpy_docstring(11, 0, 4) == "Header Name\n-----------\nhello\n\n"
+    assert test.make_docstring_numpy(11, 0, 4) == "Header Name\n-----------\nhello\n\n"
+    assert test.make_docstring_numpy(11, 0, 4) == "Header Name\n-----------\nhello\n\n"
     # multiple string contents
     test = DocSection("header name", ["hello", "i am"])
-    assert test.make_numpy_docstring(11, 0, 4) == "Header Name\n-----------\nhello\n\ni am\n\n"
+    assert test.make_docstring_numpy(11, 0, 4) == "Header Name\n-----------\nhello\n\ni am\n\n"
     # doc description
     test = DocSection("header name", DocDescription("var_name", types=str, descs="Example."))
     assert (
-        test.make_numpy_docstring(20, 0, 4)
+        test.make_docstring_numpy(20, 0, 4)
         == "Header Name\n-----------\nvar_name : str\n    Example.\n\n"
     )
     # multiple doc descriptions
@@ -76,7 +76,7 @@ def test_make_numpy_docstring():
         ],
     )
     assert (
-        test.make_numpy_docstring(20, 0, 4)
+        test.make_docstring_numpy(20, 0, 4)
         == "Header Name\n-----------\nvar_name1 : str\n    Example 1.\nvar_name2 : int\n"
         "    Example 2.\n\n"
     )
@@ -85,35 +85,35 @@ def test_make_numpy_docstring():
         "header name", DocDescription("var_name", signature="(a, b)", types=str, descs="Example.")
     )
     assert (
-        test.make_numpy_docstring(20, 0, 4)
+        test.make_docstring_numpy(20, 0, 4)
         == "Header Name\n-----------\nvar_name : str\n    Example.\n\n"
     )
 
 
-def test_make_numpy_docstring_signature():
-    """Test DocSection.make_numpy_docstring_signature."""
+def test_make_docstring_numpy_signature():
+    """Test DocSection.make_docstring_numpy_signature."""
     test = DocSection(
         "header name", DocDescription("var_name", signature="(a, b)", types=str, descs="Example.")
     )
     assert (
-        test.make_numpy_docstring_signature(20, 0, 4)
+        test.make_docstring_numpy_signature(20, 0, 4)
         == "Header Name\n-----------\nvar_name(a, b) : str\n    Example.\n\n"
     )
 
 
-def test_make_google_docstring():
-    """Test DocSection.make_google_docstring."""
+def test_make_docstring_google():
+    """Test DocSection.make_docstring_google."""
     with pytest.raises(ValueError):
         test = DocSection("quite long header name", "")
-        test.make_google_docstring(10, 0, 4)
+        test.make_docstring_google(10, 0, 4)
     # no header
     test = DocSection("", "Some text.")
-    assert test.make_google_docstring(10, 0, 4) == ("Some text.\n\n")
+    assert test.make_docstring_google(10, 0, 4) == ("Some text.\n\n")
     # one docdescription
     test = DocSection(
         "header name", DocDescription("var_name", signature="(a, b)", types=str, descs="Example.")
     )
-    assert test.make_google_docstring(35, 0, 4) == (
+    assert test.make_docstring_google(35, 0, 4) == (
         "Header Name:\n" "    var_name (:obj:`str`): Example.\n\n"
     )
     # multiple docdescription
@@ -124,36 +124,36 @@ def test_make_google_docstring():
             DocDescription("var2", signature="(c)", types="int", descs="Example2."),
         ],
     )
-    assert test.make_google_docstring(35, 0, 4) == (
+    assert test.make_docstring_google(35, 0, 4) == (
         "Header Name:\n" "    var1 (:obj:`str`): Example1.\n" "    var2 (int): Example2.\n\n"
     )
     # one string
     test = DocSection("header name", "Some text.")
-    assert test.make_google_docstring(14, 0, 4) == ("Header Name:\n" "    Some text.\n\n")
-    assert test.make_google_docstring(13, 0, 4) == ("Header Name:\n" "    Some\n" "    text.\n\n")
+    assert test.make_docstring_google(14, 0, 4) == ("Header Name:\n" "    Some text.\n\n")
+    assert test.make_docstring_google(13, 0, 4) == ("Header Name:\n" "    Some\n" "    text.\n\n")
     # multiple string
     test = DocSection("header name", ["Some text.", "Another text."])
-    assert test.make_google_docstring(17, 0, 4) == (
+    assert test.make_docstring_google(17, 0, 4) == (
         "Header Name:\n" "    Some text.\n\n" "    Another text.\n\n"
     )
-    assert test.make_google_docstring(14, 0, 4) == (
+    assert test.make_docstring_google(14, 0, 4) == (
         "Header Name:\n" "    Some text.\n\n" "    Another\n" "    text.\n\n"
     )
-    assert test.make_google_docstring(13, 0, 4) == (
+    assert test.make_docstring_google(13, 0, 4) == (
         "Header Name:\n" "    Some\n" "    text.\n\n" "    Another\n" "    text.\n\n"
     )
 
 
-def test_make_rst_docstring():
-    """Test DocSection.make_rst_docstring."""
+def test_make_docstring_rst():
+    """Test DocSection.make_docstring_rst."""
     # no header
     test = DocSection("", "Some text.")
-    assert test.make_rst_docstring(10, 0, 4) == ("Some text.\n\n")
+    assert test.make_docstring_rst(10, 0, 4) == ("Some text.\n\n")
     # normal header, one docdescription
     test = DocSection(
         "header name", DocDescription("var_name", signature="(a, b)", types=str, descs="Example.")
     )
-    assert test.make_rst_docstring(35, 0, 4) == (
+    assert test.make_docstring_rst(35, 0, 4) == (
         ":Header Name:\n\n" ":param var_name: Example.\n" ":type var_name: :obj:`str`\n\n"
     )
     # normal header, multiple docdescription
@@ -164,7 +164,7 @@ def test_make_rst_docstring():
             DocDescription("var2", signature="(c)", types="int", descs="Example2."),
         ],
     )
-    assert test.make_rst_docstring(35, 0, 4) == (
+    assert test.make_docstring_rst(35, 0, 4) == (
         ":Header Name:\n\n"
         ":param var1: Example1.\n"
         ":type var1: :obj:`str`\n"
@@ -173,10 +173,10 @@ def test_make_rst_docstring():
     )
     # normal header, one string
     test = DocSection("header name", "Some text.")
-    assert test.make_rst_docstring(13, 0, 4) == (":Header Name:\n\n" "Some text.\n\n")
+    assert test.make_docstring_rst(13, 0, 4) == (":Header Name:\n\n" "Some text.\n\n")
     # normal header, multiple string
     test = DocSection("header name", ["Some text.", "Another text."])
-    assert test.make_rst_docstring(13, 0, 4) == (
+    assert test.make_docstring_rst(13, 0, 4) == (
         ":Header Name:\n\n" "Some text.\n\n" "Another text.\n\n"
     )
 
@@ -188,7 +188,7 @@ def test_make_rst_docstring():
             DocDescription("var2", signature="(c)", types="int", descs="Example2."),
         ],
     )
-    assert test.make_rst_docstring(35, 0, 4) == (
+    assert test.make_docstring_rst(35, 0, 4) == (
         ".. seealso::\n"
         "    :param var1: Example1.\n"
         "    :type var1: :obj:`str`\n"
@@ -197,7 +197,7 @@ def test_make_rst_docstring():
     )
     # special header, string
     test = DocSection("to do", ["Example 1, something.", "Example 2."])
-    assert test.make_rst_docstring(20, 0, 4) == (
+    assert test.make_docstring_rst(20, 0, 4) == (
         ".. todo:: Example 1,\n" "    something.\n" "    Example 2.\n\n"
     )
 

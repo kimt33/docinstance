@@ -15,12 +15,8 @@ class DocContent:
         Return True if other is DocContent instance with the same contents. False otherwise.
     __ne__(self, other)
         Return False if other is DocContent instance with the same contents. True otherwise.
-    make_numpy_docstring(self, width, indent_level, tabsize)
-        Return the docstring of the content in numpy style.
-    make_google_docstring(self, width, indent_level, tabsize)
-        Return the docstring of the content in google style.
-    make_rst_docstring(self, width, indent_level, tabsize)
-        Return the docstring of the content in rst style.
+    make_docstring(self, width, indent_level, tabsize, style)
+        Return the docstring of the content in the given style.
 
     """
 
@@ -72,8 +68,8 @@ class DocContent:
         """
         return not self == other
 
-    def make_numpy_docstring(self, width, indent_level, tabsize):
-        """Return the docstring of the content in numpy style.
+    def make_docstring(self, width, indent_level, tabsize, style):
+        """Return the docstring as a string in the given style.
 
         Parameters
         ----------
@@ -83,66 +79,30 @@ class DocContent:
             Number of indents (tabs) that are needed for the docstring.
         tabsize : int
             Number of spaces that corresponds to a tab.
+        style : str
+            Name of the docstring style.
 
         Returns
         -------
         content_docstring : str
-            Docstring of the given content in numpy style.
+            Docstring of the given content in the given style.
 
         Raises
         ------
+        TypeError
+            If `style` is not given as a non-empty string.
         NotImplementedError
-            Always.
+            If the corresponding method for the given `style` is not defined.
 
         """
-        raise NotImplementedError
-
-    def make_google_docstring(self, width, indent_level, tabsize):
-        """Return the docstring of the content in google style.
-
-        Parameters
-        ----------
-        width : int
-            Maximum number of characters allowed in a line.
-        indent_level : int
-            Number of indents (tabs) that are needed for the docstring.
-        tabsize : int
-            Number of spaces that corresponds to a tab.
-
-        Returns
-        -------
-        content_docstring : str
-            Docstring of the given content in google style.
-
-        Raises
-        ------
-        NotImplementedError
-            Always.
-
-        """
-        raise NotImplementedError
-
-    def make_rst_docstring(self, width, indent_level, tabsize):
-        """Return the docstring of the content in rst style.
-
-        Parameters
-        ----------
-        width : int
-            Maximum number of characters allowed in a line.
-        indent_level : int
-            Number of indents (tabs) that are needed for the docstring.
-        tabsize : int
-            Number of spaces that corresponds to a tab.
-
-        Returns
-        -------
-        content_docstring : str
-            Docstring of the given content in rst style.
-
-        Raises
-        ------
-        NotImplementedError
-            Always.
-
-        """
-        raise NotImplementedError
+        if not (isinstance(style, str) and style != ""):
+            raise TypeError("The `style` of the docstring must be given as a non-empty string.")
+        method_name = "make_docstring_{}".format(style)
+        if hasattr(self, method_name):
+            return getattr(self, method_name)(width, indent_level, tabsize)
+        raise NotImplementedError(
+            "To make a docstring of style, {}, the given instance of {} must have a method called "
+            "{} with arguments (width, indent_level, tabsize).".format(
+                style, self.__class__, method_name
+            )
+        )

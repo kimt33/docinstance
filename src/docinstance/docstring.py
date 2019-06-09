@@ -126,20 +126,6 @@ class Docstring:
         if tabsize <= 0:
             raise ValueError("Number of spaces in a tab must be greater than zero.")
 
-        if style == "numpy":
-            docstring_func = "make_numpy_docstring"
-        elif style == "numpy with signature":
-            docstring_func = "make_numpy_docstring_signature"
-        elif style == "google":
-            docstring_func = "make_google_docstring"
-        elif style == "rst":
-            docstring_func = "make_rst_docstring"
-        else:
-            raise ValueError(
-                "Given docstring style must be one of 'numpy', 'numpy with signature',"
-                " 'google', 'rst'."
-            )
-
         # FIXME: this may not be necessary and can be removed
         if not self.check_section_order(style):
             raise ValueError(
@@ -162,11 +148,11 @@ class Docstring:
         # add remaining summary
         if len(self.sections[0].contents) > 1:
             summary = DocSection("", self.sections[0].contents[1:])
-            output += getattr(summary, docstring_func)(width, indent_level, tabsize)
+            output += summary.make_docstring(width, indent_level, tabsize, style)
         # add other sections
         if len(self.sections) > 1:
             for section in self.sections[1:]:
-                output += getattr(section, docstring_func)(width, indent_level, tabsize)
+                output += section.make_docstring(width, indent_level, tabsize, style)
         # add whitespace to indent the triple quotation
         output += " " * indent_level * tabsize
         return output
