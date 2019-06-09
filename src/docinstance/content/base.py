@@ -20,17 +20,6 @@ class DocContent:
 
     """
 
-    def __init__(self):
-        """Initialize.
-
-        Raises
-        ------
-        NotImplementedError
-            Always.
-
-        """
-        raise NotImplementedError
-
     def __eq__(self, other):
         """Return True if other is DocContent instance with the same contents. False otherwise.
 

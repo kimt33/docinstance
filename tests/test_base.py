@@ -11,10 +11,10 @@ class ModDocContent(DocContent):
         pass
 
 
-def test_base_init():
-    """Test DocContent.__init__."""
-    with pytest.raises(NotImplementedError):
-        DocContent()
+class Empty:
+    """Empty class."""
+
+    pass
 
 
 def test_base_eq():
@@ -26,11 +26,6 @@ def test_base_eq():
     assert test1 == test2
     test2.y = 2
     assert not test1 == test2
-
-    class Empty:
-        """Empty class."""
-
-        pass
 
     test2 = Empty()
     test2.x = 1
@@ -48,11 +43,6 @@ def test_base_ne():
     assert not test1 != test2
     test2.y = 2
     assert test1 != test2
-
-    class Empty:
-        """Empty class."""
-
-        pass
 
     test2 = Empty()
     test2.x = 1
