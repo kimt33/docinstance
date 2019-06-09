@@ -10,27 +10,23 @@ class Docstring:
     ----------
     sections : list of DocSection
         Sections of the docstring.
-    default_style : str
-        Default style of the docstring.
 
     Methods
     -------
-    __init__(self, sections, default_style)
+    __init__(self, sections)
         Initialize.
-    make_docstring(self, style='numpy', width=100, indent_level=0, tabsize=4)
+    make_docstring(self, width=100, indent_level=0, tabsize=4, style='numpy')
         Return the docstring in the given style.
 
     """
 
-    def __init__(self, sections, default_style="numpy"):
+    def __init__(self, sections):
         """Initialize.
 
         Parameters
         ----------
         sections : {str, list/tuple of str, list/tuple of DocSection}
             Sections of the docstring.
-        default_style : {'numpy with signature', 'google', 'rst', 'numpy'}
-            Style of the docstring.
 
         Raises
         ------
@@ -39,7 +35,6 @@ class Docstring:
             instances.
         ValueError
             If there are no sections.
-            If style is not one of 'numpy', 'numpy with signature', 'google', 'rst'.
 
         """
         if isinstance(sections, (str, DocContent)):
@@ -49,8 +44,8 @@ class Docstring:
             and all(isinstance(i, (str, DocContent)) for i in sections)
         ):
             raise TypeError(
-                "Sections of the docstring must be provided as a string, list/tuple of "
-                "strings, or list/tuple of DocContent instances."
+                "Sections of the docstring must be provided as a string, list/tuple of strings, or "
+                "list/tuple of DocContent instances."
             )
         # NOTE: should the empty sections be allowed?
         if not sections:
@@ -60,14 +55,8 @@ class Docstring:
             for section in sections
         ]
 
-        if default_style not in ["numpy", "numpy with signature", "google", "rst"]:
-            raise ValueError(
-                "Default style must be one of 'numpy', 'numpy with signature', " "'google', 'rst'."
-            )
-        self.default_style = default_style
-
     # pylint: disable=R0912
-    def make_docstring(self, width=100, indent_level=0, tabsize=4, style=None):
+    def make_docstring(self, width=100, indent_level=0, tabsize=4, style="numpy"):
         """Return the docstring in the given style.
 
         Parameters
@@ -81,9 +70,8 @@ class Docstring:
         tabsize : {int, 4}
             Number of spaces that corresponds to a tab.
             Default is 4.
-        style : {'numpy', 'google', 'rst', 'numpy with signature', None}
+        style : str
             Style of the docstring.
-            Default is the `default_style`.
 
         Returns
         -------
@@ -108,8 +96,6 @@ class Docstring:
             line of the docstring (including the triple quotation) or the second line.
 
         """
-        if style is None:
-            style = self.default_style
         # check input
         if not isinstance(width, int):
             raise TypeError("Maximum width of the line must be given as an integer.")
@@ -211,7 +197,7 @@ class Docstring:
         ]
         if not allow_other_sections and any(i == default_value for i in order_values):
             raise ValueError(
-                "For the docstring style, {0}, the headings of the sections must be "
-                "one of {1}".format(style, list(ordering.keys()))
+                "For the docstring style, {0}, the headings of the sections must be one of {1}."
+                "".format(style, list(ordering.keys()))
             )
         return all(i <= j for i, j in zip(order_values, order_values[1:]))

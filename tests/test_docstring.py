@@ -17,10 +17,6 @@ def test_init():
         Docstring(["1", 1])
     with pytest.raises(ValueError):
         Docstring([])
-    with pytest.raises(ValueError):
-        Docstring("1", "nothing")
-    with pytest.raises(ValueError):
-        Docstring("1", None)
 
     test = Docstring("some text")
     assert isinstance(test.sections, list)
@@ -45,11 +41,6 @@ def test_init():
     assert isinstance(test.sections[1], DocSection)
     assert test.sections[1].header == ""
     assert test.sections[1].contents == ["some text"]
-
-    test = Docstring("some text", "numpy")
-    assert test.default_style == "numpy"
-    test = Docstring("some text", "rst")
-    assert test.default_style == "rst"
 
 
 def test_make_docstring():
