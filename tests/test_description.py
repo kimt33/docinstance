@@ -1,5 +1,5 @@
 """Test docinstance.content.description."""
-from docinstance.content.description import DocDescription
+from docinstance.content.description import DocDescription, DocParagraph
 import pytest
 
 
@@ -223,4 +223,117 @@ def test_make_docstring_rst():
         "    Example 2.\n"
         ":type var_name: str,\n"
         "    :obj:`int`\n"
+    )
+
+
+def test_docparagraph_init():
+    """Test DocParagraph.__init__."""
+    # check type of paragraph
+    with pytest.raises(TypeError):
+        DocParagraph(1)
+    with pytest.raises(TypeError):
+        DocParagraph(["hello"])
+    # check type of type of num_newlines_end
+    with pytest.raises(TypeError):
+        DocParagraph("hello", 1.0)
+    with pytest.raises(TypeError):
+        DocParagraph("hello", "1")
+    # check value of type of num_newlines_end
+    with pytest.raises(ValueError):
+        DocParagraph("hello", 0)
+    with pytest.raises(ValueError):
+        DocParagraph("hello", -2)
+    # check attributes
+    test = DocParagraph("hello", 3)
+    assert test.paragraph == "hello"
+    assert test.num_newlines_end == 3
+
+
+def test_docparagraph_make_docstring():
+    """Test DocParagraph.make_docstring."""
+    # google style
+    test = DocParagraph("sometext somewhere somehow")
+    assert test.make_docstring(9, 0, 4, "google") == "sometext\nsomewhere\nsomehow\n\n"
+    # different number of lines at the end
+    test = DocParagraph("sometext somewhere somehow", num_newlines_end=1)
+    assert test.make_docstring(9, 0, 4, "google") == "sometext\nsomewhere\nsomehow\n"
+    test = DocParagraph("sometext somewhere somehow", num_newlines_end=3)
+    assert test.make_docstring(9, 0, 4, "google") == "sometext\nsomewhere\nsomehow\n\n\n"
+    # numpy style
+    test = DocParagraph("sometext somewhere somehow")
+    assert test.make_docstring(9, 0, 4, "numpy") == "sometext\nsomewhere\nsomehow\n\n"
+    # undefined style
+    assert test.make_docstring(9, 0, 4, "badstyle") == "sometext\nsomewhere\nsomehow\n\n"
+
+
+def test_docparagraph_make_docstring_rst():
+    """Test DocParagraph.make_docstring_rst."""
+    test = DocParagraph("sometext somewhere somehow")
+    assert test.make_docstring_rst(13, 0, 4, "") == "sometext\nsomewhere\nsomehow\n\n"
+    assert test.make_docstring_rst(13, 0, 2, "") == "sometext\nsomewhere\nsomehow\n\n"
+    assert test.make_docstring_rst(13, 1, 4, "") == "    sometext\n    somewhere\n    somehow\n\n"
+    assert test.make_docstring_rst(13, 1, 2, "") == "  sometext\n  somewhere\n  somehow\n\n"
+
+    test = DocParagraph("some text somewhere somehow")
+    assert (
+        test.make_docstring_rst(13, 0, 2, "1234567 ")
+        == "1234567 some\n  text\n  somewhere\n  somehow\n\n"
+    )
+    test = DocParagraph("some text somewhere somehow", num_newlines_end=1)
+    assert (
+        test.make_docstring_rst(13, 0, 2, "1234567 ")
+        == "1234567 some\n  text\n  somewhere\n  somehow\n"
+    )
+    test = DocParagraph("some text somewhere somehow", num_newlines_end=1)
+    assert (
+        test.make_docstring_rst(13, 0, 2, "123456789 ")
+        == "123456789\n  some text\n  somewhere\n  somehow\n"
+    )
+
+    assert test.make_docstring_rst(13, 1, 2, "") == "  some text\n  somewhere\n  somehow\n"
+    assert test.make_docstring_rst(13, 1, 2, "1") == "1some text\n    somewhere\n    somehow\n"
+    assert test.make_docstring_rst(13, 1, 2, "12") == "12some text\n    somewhere\n    somehow\n"
+    assert test.make_docstring_rst(13, 1, 2, "123") == "123some text\n    somewhere\n    somehow\n"
+    assert (
+        test.make_docstring_rst(13, 1, 2, "1234") == "1234some text\n    somewhere\n    somehow\n"
+    )
+    assert (
+        test.make_docstring_rst(13, 1, 2, "12345")
+        == "12345some\n    text\n    somewhere\n    somehow\n"
+    )
+    assert (
+        test.make_docstring_rst(13, 1, 2, "123456")
+        == "123456some\n    text\n    somewhere\n    somehow\n"
+    )
+    assert (
+        test.make_docstring_rst(13, 1, 2, "1234567")
+        == "1234567some\n    text\n    somewhere\n    somehow\n"
+    )
+    assert (
+        test.make_docstring_rst(13, 1, 2, "12345678")
+        == "12345678some\n    text\n    somewhere\n    somehow\n"
+    )
+    assert (
+        test.make_docstring_rst(13, 1, 2, "123456789")
+        == "123456789some\n    text\n    somewhere\n    somehow\n"
+    )
+    assert (
+        test.make_docstring_rst(13, 1, 2, "123456789 ")
+        == "123456789\n    some text\n    somewhere\n    somehow\n"
+    )
+    assert (
+        test.make_docstring_rst(13, 1, 2, "1234567890 ")
+        == "1234567890\n    some text\n    somewhere\n    somehow\n"
+    )
+    assert (
+        test.make_docstring_rst(13, 1, 2, "12345678901 ")
+        == "12345678901\n    some text\n    somewhere\n    somehow\n"
+    )
+    assert (
+        test.make_docstring_rst(13, 1, 2, "123456789012 ")
+        == "123456789012\n    some text\n    somewhere\n    somehow\n"
+    )
+    assert (
+        test.make_docstring_rst(13, 1, 2, "1234567890123 ")
+        == "1234567890123\n    some text\n    somewhere\n    somehow\n"
     )

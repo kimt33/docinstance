@@ -387,3 +387,104 @@ class DocDescription(DocContent):
             output += "\n".join(block)
             output += "\n"
         return output
+
+
+class DocParagraph(DocContent):
+    """Sentences(strings) that are used within the docstring with no special structure."""
+
+    def __init__(self, paragraph, num_newlines_end=2):
+        """Initialize the object.
+
+        Parameters
+        ----------
+        paragraph : str
+            Sentences without special structure.
+        num_newlines_end : int
+            Number of newlines at the end of the paragraph.
+
+        Raises
+        ------
+        TypeError
+            If `paragraph` is not a string.
+            If `num_newlines_end` is not an integer.
+        ValueError
+            If `num_newlines_end` is not greater than 0.
+
+        """
+        if not isinstance(paragraph, str):
+            raise TypeError("`paragraph` must be a string.")
+        self.paragraph = paragraph
+
+        if not isinstance(num_newlines_end, int):
+            raise TypeError("`num_newlines_end` must be given as an integer.")
+        if num_newlines_end <= 0:
+            raise ValueError("`num_newlines_end` must be greater than zero.")
+        self.num_newlines_end = num_newlines_end
+
+    def make_docstring(self, width, indent_level, tabsize, style, **kwargs):
+        """Return the docstring in numpy style.
+
+        Parameters
+        ----------
+        width : int
+            Maximum number of characters allowed in a line.
+        indent_level : int
+            Number of indents (tabs) that are needed for the docstring.
+        tabsize : int
+            Number of spaces that corresponds to a tab.
+        style : str
+            Name of the docstring style.
+
+        Returns
+        -------
+        section_docstring : str
+            Docstring of the given section in numpy style.
+
+        Raises
+        ------
+        ValueError
+            If the title is too long for the given width and indentation.
+
+        """
+        # contents
+        try:
+            return super().make_docstring(width, indent_level, tabsize, style, **kwargs)
+        except NotImplementedError:
+            output = "\n".join(
+                wrap(self.paragraph, width=width, indent_level=indent_level, tabsize=tabsize)
+            )
+            output += "\n" * self.num_newlines_end
+            return output
+
+    def make_docstring_rst(self, width, indent_level, tabsize, header=""):
+        """Return the docstring in rst style.
+
+        Parameters
+        ----------
+        width : int
+            Maximum number of characters allowed in a line.
+        indent_level : int
+            Number of indents (tabs) that are needed for the docstring.
+        tabsize : int
+            Number of spaces that corresponds to a tab.
+
+        Returns
+        -------
+        section_docstring : str
+            Docstring of the given section in rst style.
+
+        Raises
+        ------
+        ValueError
+            If the title is too long for the given width and indentation.
+
+        """
+        if header == "":
+            lines = wrap(self.paragraph, width=width, indent_level=indent_level, tabsize=tabsize)
+        else:
+            lines = wrap_indent_subsequent(
+                header + self.paragraph, width=width, indent_level=indent_level + 1, tabsize=tabsize
+            )
+        output = "\n".join(lines)
+        output += "\n" * self.num_newlines_end
+        return output
