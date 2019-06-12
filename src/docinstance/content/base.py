@@ -57,7 +57,7 @@ class DocContent:
         """
         return not self == other
 
-    def make_docstring(self, width, indent_level, tabsize, style):
+    def make_docstring(self, width, indent_level, tabsize, style, **kwargs):
         """Return the docstring as a string in the given style.
 
         Parameters
@@ -70,6 +70,8 @@ class DocContent:
             Number of spaces that corresponds to a tab.
         style : str
             Name of the docstring style.
+        kwargs : dict
+            Other keyword arguments that will be passed onto the docstring maker of the given style.
 
         Returns
         -------
@@ -88,7 +90,7 @@ class DocContent:
             raise TypeError("The `style` of the docstring must be given as a non-empty string.")
         method_name = "make_docstring_{}".format(style)
         if hasattr(self, method_name):
-            return getattr(self, method_name)(width, indent_level, tabsize)
+            return getattr(self, method_name)(width, indent_level, tabsize, **kwargs)
         raise NotImplementedError(
             "To make a docstring of style, {}, the given instance of {} must have a method called "
             "{} with arguments (width, indent_level, tabsize).".format(
