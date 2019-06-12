@@ -1,18 +1,32 @@
 """Parser for numpy docstring."""
-import re
 import inspect
-from docinstance.parser.latex import parse_equation
-from docinstance.docstring import Docstring
+import re
+
 from docinstance.content.description import DocDescription
-from docinstance.content.section import (DocSection, Summary, ExtendedSummary, Parameters,
-                                         Attributes, Methods, Returns, Yields, OtherParameters,
-                                         Raises, Warns, Warnings, SeeAlso, Notes, References,
-                                         Examples)
 from docinstance.content.equation import DocEquation
+from docinstance.content.section import (  # pylint: disable=E0611
+    Attributes,
+    DocSection,
+    Examples,
+    ExtendedSummary,
+    Methods,
+    Notes,
+    OtherParameters,
+    Parameters,
+    Raises,
+    References,
+    Returns,
+    SeeAlso,
+    Summary,
+    Warnings,
+    Warns,
+    Yields,
+)
+from docinstance.docstring import Docstring
+from docinstance.parser.latex import parse_equation
 
 
-# pylint: disable=R0912,R0914,R0915
-def parse_numpy(docstring, contains_quotes=False):
+def parse_numpy(docstring, contains_quotes=False):  # pylint: disable=R0912,R0914,R0915
     r"""Parse a docstring in numpy format into a Docstring instance.
 
     Multiple descriptions of the indented information (e.g. parameters, attributes, methods,
@@ -47,27 +61,29 @@ def parse_numpy(docstring, contains_quotes=False):
     Copied from https://github.com/kimt33/pydocstring.
 
     """
-    docstring = inspect.cleandoc('\n' * contains_quotes + docstring)
+    docstring = inspect.cleandoc("\n" * contains_quotes + docstring)
 
     # remove quotes from docstring
     if contains_quotes:
-        quotes = r'[\'\"]{3}'
-        if re.search(r'^r{0}'.format(quotes), docstring):
-            raise NotImplementedError('A raw string quotation, i.e. r""" cannot be given as a '
-                                      'string, i.e. from reading a python file as a string, '
-                                      'because the backslashes belonging to escape sequences '
-                                      'cannot be distinguished from those of normal backslash.'
-                                      'You either need to change existing raw string to normal '
-                                      'i.e. convert all occurences of \\ to \\\\, or import the '
-                                      'docstring from the instance through `__doc__` attribute.')
+        quotes = r"[\'\"]{3}"
+        if re.search(r"^r{0}".format(quotes), docstring):
+            raise NotImplementedError(
+                'A raw string quotation, i.e. r""" cannot be given as a '
+                "string, i.e. from reading a python file as a string, "
+                "because the backslashes belonging to escape sequences "
+                "cannot be distinguished from those of normal backslash."
+                "You either need to change existing raw string to normal "
+                "i.e. convert all occurences of \\ to \\\\, or import the "
+                "docstring from the instance through `__doc__` attribute."
+            )
     else:
-        quotes = r''
-    docstring = re.sub(r'^{0}'.format(quotes), '', docstring)
-    docstring = re.sub(r'{0}$'.format(quotes), '', docstring)
+        quotes = r""
+    docstring = re.sub(r"^{0}".format(quotes), "", docstring)
+    docstring = re.sub(r"{0}$".format(quotes), "", docstring)
 
     sections = []
     # summary
-    for regex in [r'^\n?(.+?)\n\n+', r'^\n?(.*?)\n*$']:
+    for regex in [r"^\n?(.+?)\n\n+", r"^\n?(.*?)\n*$"]:
         re_summary = re.compile(regex)
         try:
             sections.append(Summary(re_summary.search(docstring).group(1)))
@@ -75,19 +91,22 @@ def parse_numpy(docstring, contains_quotes=False):
         except AttributeError:
             pass
     else:
-        raise ValueError('The summary must be in the first or the second line with a blank line '
-                         'afterwards.')
+        raise ValueError(
+            "The summary must be in the first or the second line with a blank line " "afterwards."
+        )
     # remove summary from docstring
-    docstring = re_summary.sub('', docstring)
-    if docstring == '':
+    docstring = re_summary.sub("", docstring)
+    if docstring == "":
         return Docstring(sections)
 
     # if headers do not exist
-    re_header = re.compile(r'\n*(.+)\n(-+)\n+')
+    re_header = re.compile(r"\n*(.+)\n(-+)\n+")
     if re_header.search(docstring) is None:
         # split into blocks by math equations and multiple newlines
-        extended = [[lines] if isinstance(lines, DocEquation) else re.split(r'\n\n+', lines)
-                    for lines in parse_equation(docstring)]
+        extended = [
+            [lines] if isinstance(lines, DocEquation) else re.split(r"\n\n+", lines)
+            for lines in parse_equation(docstring)
+        ]
         extended = [line for lines in extended for line in lines]
         extended_contents = []
         for block in extended:
@@ -97,11 +116,11 @@ def parse_numpy(docstring, contains_quotes=False):
             #     continue
             if not isinstance(block, DocEquation):
                 # remove quotes
-                block = re.sub(r'\n*{0}$'.format(quotes), '', block)
+                block = re.sub(r"\n*{0}$".format(quotes), "", block)
                 # remove trailing newlines
-                block = re.sub(r'\n+$', '', block)
+                block = re.sub(r"\n+$", "", block)
                 # replace newlines
-                block = block.replace('\n', ' ')
+                block = block.replace("\n", " ")
             extended_contents.append(block)
         sections.append(ExtendedSummary(extended_contents))
         return Docstring(sections)
@@ -113,8 +132,10 @@ def parse_numpy(docstring, contains_quotes=False):
     extended, *split_docstring = split_docstring
     # FIXME: repeated code
     # extract math and split blocks
-    extended = [[lines] if isinstance(lines, DocEquation) else re.split(r'\n\n+', lines)
-                for lines in parse_equation(extended)]
+    extended = [
+        [lines] if isinstance(lines, DocEquation) else re.split(r"\n\n+", lines)
+        for lines in parse_equation(extended)
+    ]
     extended = [line for lines in extended for line in lines]
     # process blocks
     processed_extended = []
@@ -125,79 +146,95 @@ def parse_numpy(docstring, contains_quotes=False):
         #     continue
         if not isinstance(block, DocEquation):
             # remove quotes
-            block = re.sub(r'\n*{0}$'.format(quotes), '', block)
+            block = re.sub(r"\n*{0}$".format(quotes), "", block)
             # remove trailing newlines
-            block = re.sub(r'\n+$', '', block)
+            block = re.sub(r"\n+$", "", block)
             # replace newlines
-            block = block.replace('\n', ' ')
+            block = block.replace("\n", " ")
         processed_extended.append(block)
 
     if processed_extended != []:
         sections.append(ExtendedSummary(processed_extended))
 
-    headers_sections = {'parameters': Parameters, 'other parameters': OtherParameters,
-                        'attributes': Attributes, 'methods': Methods, 'returns': Returns,
-                        'yields': Yields, 'raises': Raises, 'see also': SeeAlso, 'warns': Warns,
-                        'warnings': Warnings, 'examples': Examples, 'references': References,
-                        'notes': Notes, 'properties': None, 'abstract properties': None,
-                        'abstract methods': None}
-    for header, lines, contents in zip(split_docstring[0::3],
-                                       split_docstring[1::3],
-                                       split_docstring[2::3]):
-        contents = re.sub(r'\n+$', r'\n', contents)
+    headers_sections = {
+        "parameters": Parameters,
+        "other parameters": OtherParameters,
+        "attributes": Attributes,
+        "methods": Methods,
+        "returns": Returns,
+        "yields": Yields,
+        "raises": Raises,
+        "see also": SeeAlso,
+        "warns": Warns,
+        "warnings": Warnings,
+        "examples": Examples,
+        "references": References,
+        "notes": Notes,
+        "properties": None,
+        "abstract properties": None,
+        "abstract methods": None,
+    }
+    for header, lines, contents in zip(
+        split_docstring[0::3], split_docstring[1::3], split_docstring[2::3]
+    ):
+        contents = re.sub(r"\n+$", r"\n", contents)
 
         if len(header) != len(lines):
-            raise ValueError('Need {0} of `-` underneath the header title, {1}'
-                             ''.format(len(header), header))
+            raise ValueError(
+                "Need {0} of `-` underneath the header title, {1}" "".format(len(header), header)
+            )
 
         header = header.lower()
         header_contents = []
         # special headers (special format for each entry)
         if header in headers_sections:
-            entries = (entry for entry in re.split(r'\n(?!\s+)', contents) if entry != '')
+            entries = (entry for entry in re.split(r"\n(?!\s+)", contents) if entry != "")
             # FIXME: following regular expression would work only if docstring has spaces adjacent
             #        to ':'
-            re_entry = re.compile(r'^(.+?)(\(.+?\))?(?: *: *(.+))?(?:\n|$)')
+            re_entry = re.compile(r"^(.+?)(\(.+?\))?(?: *: *(.+))?(?:\n|$)")
             for entry in entries:
                 # keep only necessary pieces
                 _, name, signature, types, descs = re_entry.split(entry)
 
                 # process signature
                 if signature is None:
-                    signature = ''
+                    signature = ""
                 else:
-                    signature = ', '.join(i.strip() for i in signature.split(','))
+                    signature = ", ".join(i.strip() for i in signature.split(","))
 
                 # process types
                 if types is None:
                     types = []
-                elif re.search(r'\{.+\}', types):
-                    types = re.search(r'^\{((?:(.+?),\s*)*(.+?))\}$', types).group(1)
-                    types = re.split(r',\s*', types)
+                elif re.search(r"\{.+\}", types):
+                    types = re.search(r"^\{((?:(.+?),\s*)*(.+?))\}$", types).group(1)
+                    types = re.split(r",\s*", types)
                 else:
-                    types = re.search(r'^((?:(.+?),\s*)*(.+?))$', types).group(1)
-                    types = re.split(r',\s*', types)
+                    types = re.search(r"^((?:(.+?),\s*)*(.+?))$", types).group(1)
+                    types = re.split(r",\s*", types)
                 types = [i for i in types if i is not None]
 
                 # process documentation
-                descs = inspect.cleandoc('\n' + descs)
+                descs = inspect.cleandoc("\n" + descs)
                 # NOTE: period is used to terminate a description. i.e. one description is
                 #       distinguished from another with a period and a newline.
-                descs = re.split(r'\.\n+', descs)
+                descs = re.split(r"\.\n+", descs)
                 # add period (only the last line is not missing the period)
-                descs = [line + '.' for line in descs[:-1]] + descs[-1:]
+                descs = [line + "." for line in descs[:-1]] + descs[-1:]
                 # extract equations
                 descs = [line for lines in descs for line in parse_equation(lines)]
                 # non math blocks will replace newlines with spaces.
                 # math blocks will add newline at the end
-                descs = [line if isinstance(line, DocEquation) else line.replace('\n', ' ')
-                         for line in descs]
+                descs = [
+                    line if isinstance(line, DocEquation) else line.replace("\n", " ")
+                    for line in descs
+                ]
 
                 # store
-                header_contents.append(DocDescription(name, signature=signature, types=types,
-                                                      descs=descs))
+                header_contents.append(
+                    DocDescription(name, signature=signature, types=types, descs=descs)
+                )
         else:
-            header_contents = [i for i in re.split(r'\n\n+', contents) if i != '']
+            header_contents = [i for i in re.split(r"\n\n+", contents) if i != ""]
         try:
             sections.append(headers_sections[header](header_contents))
         except KeyError:

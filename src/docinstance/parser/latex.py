@@ -1,6 +1,7 @@
 """Parser for Latex equations."""
-import re
 import inspect
+import re
+
 from docinstance.content.equation import DocEquation
 
 
@@ -19,7 +20,7 @@ def is_math(text):
         False otherwise.
 
     """
-    re_math = re.compile(r'^\s*\.\.\s*math::\n*(?:\n\s+.+)+\n*$')
+    re_math = re.compile(r"^\s*\.\.\s*math::\n*(?:\n\s+.+)+\n*$")
     return bool(re_math.search(text))
 
 
@@ -38,17 +39,17 @@ def parse_equation(text):
         Equations are stored as instances of DocEquation.
 
     """
-    re_math = re.compile(r'\s*(\.\.\s*math::\n*(?: +.+\n?)+)\n*')
+    re_math = re.compile(r"\s*(\.\.\s*math::\n*(?: +.+\n?)+)\n*")
     # split equations
     split_text = []
     for block in re_math.split(text):
         # remove empty blocks
-        if block == '':
+        if block == "":
             continue
         # remove trailing newline
         if is_math(block):
-            block = re.sub(r'\n*$', '', block)
-            block = re.sub(r'^\s*\.\.\s*math::\n*', '', block)
+            block = re.sub(r"\n*$", "", block)
+            block = re.sub(r"^\s*\.\.\s*math::\n*", "", block)
             block = inspect.cleandoc(block)
             block = DocEquation(block)
         split_text.append(block)

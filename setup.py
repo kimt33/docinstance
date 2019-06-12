@@ -14,10 +14,15 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/kimt33/docinstance",
-    packages=setuptools.find_packages(),
+    packages=setuptools.find_packages(where="src"),
+    package_dir={"": "src"},
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
         "Operating System :: OS Independent",
     ],
+    extras_require={
+        "napoleon": ["sphinxcontrib-napoleon"],
+        "test": ["tox", "pytest", "pytest-cov"],
+    },
 )
