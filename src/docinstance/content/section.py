@@ -303,9 +303,9 @@ class Summary(DocSection):
 
         """
         self.header = ""
-        if not isinstance(contents, str):
-            raise TypeError("The parameter `contents` must be a string.")
-        self.contents = [contents]
+        if not isinstance(contents, (str, DocParagraph)):
+            raise TypeError("The parameter `contents` must be a string or a DocParagraph instance.")
+        self.contents = [DocParagraph(contents) if isinstance(contents, str) else contents]
 
     def make_docstring(self, width, indent_level, tabsize, summary_only=False, special=False):
         """Return the docstring for the summary.
@@ -339,7 +339,7 @@ class Summary(DocSection):
 
         """
         output = ""
-        summary = self.contents[0]
+        summary = self.contents[0].paragraph
         # if summary cannot fit into first line with one triple quotation
         # if len(summary) + ' ' * indent_level * tabsize > width - 3:
         if len(wrap(summary, width - 3 - int(special), indent_level, tabsize)) > 1:
