@@ -249,6 +249,34 @@ def test_docparagraph_init():
     assert test.num_newlines_end == 3
 
 
+def test_paragraph_eq():
+    """Test DocParagraph.__eq__."""
+    test1 = DocParagraph("test")
+    test1.x = 1
+    test2 = DocParagraph("test")
+    test2.x = 1
+    assert test1 == test2
+    test2.y = 2
+    assert not test1 == test2
+    # NOTE: test1 has attribute x that the string does not have
+    assert test1 == "test"
+    assert not test1 == "test2"
+
+
+def test_paragraph_ne():
+    """Test DocParagraph.__ne__."""
+    test1 = DocParagraph("test")
+    test1.x = 1
+    test2 = DocParagraph("test")
+    test2.x = 1
+    assert not test1 != test2
+    test2.y = 2
+    assert test1 != test2
+    # NOTE: test1 has attribute x that the string does not have
+    assert not test1 != "test"
+    assert test1 != "test2"
+
+
 def test_docparagraph_make_docstring():
     """Test DocParagraph.make_docstring."""
     # google style

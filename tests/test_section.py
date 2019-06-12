@@ -36,20 +36,13 @@ def test_init():
     with pytest.raises(TypeError):
         DocSection("1", [DocDescription("test"), "1"])
 
-    with pytest.raises(TypeError):
-        DocSection("header name", "hello")
-    with pytest.raises(TypeError):
-        DocSection("header name", ["hello", "i am"])
-        DocSection("header name", ["hello", "i am"])
-    doc = DocParagraph("hello")
-    test = DocSection("header name", DocParagraph("hello"))
+    test = DocSection("header name", "hello")
     assert test.header == "header name"
-    assert test.contents == [doc]
-    doc1 = DocParagraph("hello")
-    doc2 = DocParagraph("hello")
-    test = DocSection("header name", [doc1, doc2])
+    assert test.contents == ["hello"]
+
+    test = DocSection("header name", ["hello", "i am"])
     assert test.header == "header name"
-    assert test.contents == [doc1, doc2]
+    assert test.contents == ["hello", "i am"]
 
     doc1 = DocDescription("hello")
     doc2 = DocDescription("i am")

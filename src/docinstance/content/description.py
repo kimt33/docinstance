@@ -421,6 +421,50 @@ class DocParagraph(DocContent):
             raise ValueError("`num_newlines_end` must be greater than zero.")
         self.num_newlines_end = num_newlines_end
 
+    def __eq__(self, other):
+        """Check if other is DocParagraph instance or string with the same contents.
+
+        Parameters
+        ----------
+        other : {DocContent, str}
+
+
+        Returns
+        -------
+        bool
+            True if `self` has the same content as `other`.
+            False otherwise.
+
+        """
+        if isinstance(other, str):
+            return self.paragraph == other
+        return isinstance(other, DocContent) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        """Check if other is DocContent instance or string with different contents.
+
+        Parameters
+        ----------
+        other : DocContent
+
+        Returns
+        -------
+        bool
+            True if `self` has different content than `other`.
+            False otherwise.
+
+        Notes
+        -----
+        The behaviour of __ne__ changed form Python 2 to Python 3. In Python 3, there is a default
+        behaviour of __ne__ when __eq__ returns NotImplemented, which is the default behaviour for
+        __eq__. Special care needs to be taken when only __ne__ is defined. However, since we define
+        the __eq__ here, we don't need to be too careful. See
+        https://stackoverflow.com/questions/4352244/python-should-i-implement-ne-operator-based-on-eq/50661674#50661674
+        for more details.
+
+        """
+        return not self == other
+
     def make_docstring(self, width, indent_level, tabsize, style, **kwargs):
         """Return the docstring in numpy style.
 
