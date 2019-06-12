@@ -59,7 +59,7 @@ class DocSection(DocContent):
             raise TypeError("The parameter `header` must be a string.")
         self.header = header
 
-        if isinstance(contents, DocContent):
+        if isinstance(contents, (str, DocContent)):
             contents = [contents]
         # NOTE: is it really necessary to prevent contents of a section from mixing
         # strings/DocContent and DocDescription?
@@ -67,7 +67,7 @@ class DocSection(DocContent):
             isinstance(contents, (tuple, list))
             and (
                 all(
-                    isinstance(content, DocContent)
+                    isinstance(content, (str, DocContent))
                     and not isinstance(content, DocDescription)
                     for content in contents
                 )
@@ -80,8 +80,7 @@ class DocSection(DocContent):
                 "DocDescription)."
             )
 
-        # TODO: convert strings to DocPargraph? string sare currently not supported
-        self.contents = list(contents)
+        self.contents = [DocParagraph(i) if isinstance(i, str) else i for i in contents]
 
     # pylint: disable=W0221
     # the extra argument is used in the make_docstring_numpy_signature
