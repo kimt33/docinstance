@@ -1,7 +1,7 @@
 """Class for representing a section in the docstring."""
 from docinstance.content.base import DocContent
-from docinstance.content.description import DocDescription
-from docinstance.utils import wrap, wrap_indent_subsequent
+from docinstance.content.description import DocDescription, DocParagraph
+from docinstance.utils import wrap
 
 
 class DocSection(DocContent):
@@ -59,7 +59,7 @@ class DocSection(DocContent):
             raise TypeError("The parameter `header` must be a string.")
         self.header = header
 
-        if isinstance(contents, (str, DocContent)):
+        if isinstance(contents, DocContent):
             contents = [contents]
         # NOTE: is it really necessary to prevent contents of a section from mixing
         # strings/DocContent and DocDescription?
@@ -67,7 +67,7 @@ class DocSection(DocContent):
             isinstance(contents, (tuple, list))
             and (
                 all(
-                    isinstance(content, (str, DocContent))
+                    isinstance(content, DocContent)
                     and not isinstance(content, DocDescription)
                     for content in contents
                 )
@@ -79,6 +79,8 @@ class DocSection(DocContent):
                 "DocDescription, or a list/tuple of strings/DocContent (not "
                 "DocDescription)."
             )
+
+        # TODO: convert strings to DocPargraph? string sare currently not supported
         self.contents = list(contents)
 
     # pylint: disable=W0221
@@ -124,24 +126,11 @@ class DocSection(DocContent):
             output += "{0}\n{1}\n".format(title[0], divider[0])
         # contents
         for paragraph in self.contents:
-            # NOTE: since the contents are checked in the initialization, we will assume that the
-            # paragraph can only be string or DocDescription
-            if isinstance(paragraph, str):
-                output += "\n".join(
-                    wrap(paragraph, width=width, indent_level=indent_level, tabsize=tabsize)
-                )
-                output += "\n\n"
-            # if isinstance(paragraph, DocContent)
-            elif include_signature and hasattr(paragraph, "make_docstring_numpy_signature"):
-                output += paragraph.make_docstring_numpy_signature(width, indent_level, tabsize)
+            if include_signature and hasattr(paragraph, "make_docstring_numpy_signature"):
+                output += paragraph.make_docstring(width, indent_level, tabsize, "numpy_signature")
             else:
-                output += paragraph.make_docstring_numpy(width, indent_level, tabsize)
-        # pylint: disable=W0120
-        # following block clause should always be executed
-        else:
-            # end a section with two newlines (note that the section already ends with a newline if
-            # it ends with a paragraph)
-            output += "\n" * isinstance(paragraph, DocDescription)
+                output += paragraph.make_docstring(width, indent_level, tabsize, "numpy")
+        output += "\n" * (2 - output[-2:].count("\n"))
 
         return output
 
@@ -212,22 +201,8 @@ class DocSection(DocContent):
             indent_level -= 1
         # contents
         for paragraph in self.contents:
-            # NOTE: since the contents are checked in the initialization, we will assume that the
-            # paragraph can only be string or DocDescription
-            if isinstance(paragraph, str):
-                output += "\n".join(
-                    wrap(paragraph, width=width, indent_level=indent_level + 1, tabsize=tabsize)
-                )
-                output += "\n\n"
-            # if isinstance(paragraph, DocContent)
-            else:
-                output += paragraph.make_docstring_google(width, indent_level + 1, tabsize)
-        # pylint: disable=W0120
-        # following block clause should always be executed
-        else:
-            # end a section with two newlines (note that the section already ends with a newline if
-            # it ends with a paragraph)
-            output += "\n" * isinstance(paragraph, DocDescription)
+            output += paragraph.make_docstring(width, indent_level + 1, tabsize, "google")
+        output += "\n" * (2 - output[-2:].count("\n"))
 
         return output
 
@@ -263,51 +238,31 @@ class DocSection(DocContent):
 
         if self.header.lower() in special_headers:
             header = ".. {0}::".format(special_headers[self.header.lower()])
-        elif self.header != "":
-            output += ":{0}:\n\n".format(self.header.title())
-
-        for i, paragraph in enumerate(self.contents):
-            # first content must be treated with care for special headers
-            if i == 0 and self.header.lower() in special_headers:
-                # str
-                if isinstance(paragraph, str):
-                    text = "{0} {1}".format(header, paragraph)
-                    # FIXME: following can probably be replaced with a better wrapping function
-                    first_content = [
-                        " " * indent_level * tabsize + line
-                        for line in wrap_indent_subsequent(
-                            text,
-                            width=width - indent_level * tabsize,
-                            indent_level=indent_level + 1,
-                            tabsize=tabsize,
-                        )
-                    ]
-                    output += "\n".join(first_content)
-                    output += "\n"
-                # DocContent
-                else:
-                    output += header
-                    output += "\n"
-                    output += paragraph.make_docstring_rst(
-                        width=width, indent_level=indent_level + 1, tabsize=tabsize
-                    )
-                # indent all susequent content
-                indent_level += 1
-            elif isinstance(paragraph, str):
-                output += "\n".join(
-                    wrap(paragraph, width=width, indent_level=indent_level, tabsize=tabsize)
+            # it seems that this special case, e.g. ".. seealso:: blah blah blah\n    blah", has
+            # some fancy indentation (first line is not indented, but the subsequent lines are)
+            # This case seems to be the only special case,so it is treated separately to get
+            # it out of the way
+            if isinstance(self.contents[0], DocParagraph):
+                output += self.contents[0].make_docstring_rst(
+                    width, indent_level, tabsize, header=header + " "
                 )
-                # NOTE: the second newline may cause problems (because the field might not
-                # recognize text that is more than one newline away)
-                output += "\n\n"
-            else:
-                output += paragraph.make_docstring_rst(width, indent_level, tabsize)
-        # pylint: disable=W0120
-        # following block clause should always be executed
-        else:
-            # end a section with two newlines (note that the section already ends with a newline
-            # if it ends with a paragraph)
-            output += "\n" * isinstance(paragraph, DocDescription)
+                for paragraph in self.contents[1:]:
+                    output += paragraph.make_docstring_rst(width, indent_level + 1, tabsize)
+                output += "\n" * (2 - output[-2:].count("\n"))
+                return output
+
+            output += header
+            output += "\n"
+            indent_level += 1
+        elif self.header != "":
+            header = ":{0}:".format(self.header.title())
+            output += header
+            output += "\n\n"
+
+        output += self.contents[0].make_docstring_rst(width, indent_level, tabsize)
+        for paragraph in self.contents[1:]:
+            output += paragraph.make_docstring_rst(width, indent_level, tabsize)
+        output += "\n" * (2 - output[-2:].count("\n"))
 
         return output
 
