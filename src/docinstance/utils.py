@@ -1,7 +1,7 @@
 """Utility functions for handling strings and attributes of an object."""
-import textwrap
 import inspect
 import os
+import textwrap
 
 
 def wrap(text, width=100, indent_level=0, tabsize=4, **kwargs):
@@ -48,30 +48,34 @@ def wrap(text, width=100, indent_level=0, tabsize=4, **kwargs):
         If is a word plus its indentation is longer than the width.
 
     """
-    kwargs.setdefault('expand_tabs', True)
-    kwargs.setdefault('replace_whitespace', False)
-    kwargs.setdefault('drop_whitespace', True)
-    kwargs.setdefault('break_long_words', False)
-    kwargs['tabsize'] = tabsize
+    kwargs.setdefault("expand_tabs", True)
+    kwargs.setdefault("replace_whitespace", False)
+    kwargs.setdefault("drop_whitespace", True)
+    kwargs.setdefault("break_long_words", False)
+    kwargs["tabsize"] = tabsize
     if width <= tabsize * indent_level:
-        raise ValueError('Amount of indentation must be less than the maximum width.')
-    kwargs['width'] = width - tabsize * indent_level
+        raise ValueError("Amount of indentation must be less than the maximum width.")
+    kwargs["width"] = width - tabsize * indent_level
 
     # NOTE: uncomment to remove whitespace at the beginning and the end
     # text = text.strip()
     # Acknowledge all of the newlines (start, middle, and end)
-    lines = text.split('\n')
+    lines = text.split("\n")
     # wrap each line (separated by newline) separately
-    wrapped_lines = [wrapped_line
-                     for unwrapped_line in lines
-                     for wrapped_line in
-                     (textwrap.wrap(unwrapped_line, **kwargs) if unwrapped_line != '' else [''])]
+    wrapped_lines = [
+        wrapped_line
+        for unwrapped_line in lines
+        for wrapped_line in (
+            textwrap.wrap(unwrapped_line, **kwargs) if unwrapped_line != "" else [""]
+        )
+    ]
     # indent
-    output = [' ' * tabsize * indent_level + line for line in wrapped_lines]
+    output = [" " * tabsize * indent_level + line for line in wrapped_lines]
 
     if any(len(line) > width for line in output):
-        raise ValueError('There cannot be any word (after indentation) that exceeds the maximum '
-                         'width')
+        raise ValueError(
+            "There cannot be any word (after indentation) that exceeds the maximum " "width"
+        )
     return output
 
 
@@ -102,8 +106,9 @@ def wrap_indent_subsequent(text, width=100, indent_level=0, tabsize=4):
         discarded only if the first word cannot fit into the given line width with the whitespace.
 
     """
-    output = wrap(text, width=width, indent_level=0, tabsize=0,
-                  subsequent_indent=' ' * tabsize * indent_level)
+    output = wrap(
+        text, width=width, indent_level=0, tabsize=0, subsequent_indent=" " * tabsize * indent_level
+    )
     return output
 
 
